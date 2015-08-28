@@ -3,10 +3,7 @@ var gl;
 
 function startGL() {
     canvas = document.getElementById("mainCanvas");
-
-    initWebGL(canvas);      // Initialize the GL context
-  
-    // Only continue if WebGL is available and working
+    getWebGLContext(canvas);
   
     if (gl) {
         gl.clearColor(0.7, 0.3, 0.5, 1.0);
@@ -14,25 +11,24 @@ function startGL() {
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LEQUAL);
 
-        setInterval(drawScene, 15);
+        //Our main loop
+        setInterval(renderScene, 15);
     }
 }
 
-function initWebGL() {
+function getWebGLContext() {
     gl = null;
   
     try {
         gl = canvas.getContext("webgl");
     } catch(e) {}
-  
-  // If we don't have a GL context, give up now
 
     if (!gl) {
-        alert("Unable to initialize WebGL. Your browser may not support it.");
+        alert("Cannot initialize WebGL. Your browser may not support it.");
     }
 }
 
-function drawScene() {
+function renderScene() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 }
