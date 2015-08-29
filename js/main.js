@@ -1,34 +1,30 @@
-var canvas;
-var gl;
+var canvas;			//A reference to our canvas element
+var gl = null;		//A reference to the WebGL context
 
-function startGL() {
-    canvas = document.getElementById("mainCanvas");
-    getWebGLContext(canvas);
-  
-    if (gl) {
-        gl.clearColor(0.7, 0.3, 0.5, 1.0);
-        gl.clearDepth(1.0);
-        gl.enable(gl.DEPTH_TEST);
-        gl.depthFunc(gl.LEQUAL);
+function initApplication() {
+	canvas = document.getElementById("mainCanvas");
+	
+	try {
+		gl = canvas.getContext("webgl");
+	}catch(e){
+		
+	}
 
-        //Our main loop
-        setInterval(renderScene, 15);
-    }
-}
+	if (!gl) {
+		alert("Failed initialize WebGL. Your browser may not support it.");
+		return;
+	}
 
-function getWebGLContext() {
-    gl = null;
-  
-    try {
-        gl = canvas.getContext("webgl");
-    } catch(e) {}
+	gl.clearColor(0.7, 0.3, 0.5, 1.0);
+	gl.clearDepth(1.0);
+	gl.enable(gl.DEPTH_TEST);
+	gl.depthFunc(gl.LEQUAL);
 
-    if (!gl) {
-        alert("Cannot initialize WebGL. Your browser may not support it.");
-    }
+	//Our main loop
+	setInterval(renderScene, 15);
+	
 }
 
 function renderScene() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
