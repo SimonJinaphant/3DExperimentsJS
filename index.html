@@ -4,11 +4,24 @@
 		<meta charset="utf-8" />
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 		<script src="js/main.js"></script>
+		<style type="text/css">
+			#container{
+				margin: 0px auto;
+				width: 1200px;
+			}
+			
+			#mainCanvas{
+				width: inherit;
+				height: 680;
+			}
+		</style>
 	</head>
 	
 	<body onload="startGL()">
-		<canvas id="mainCanvas" width="640" height="480">
-			Your browser doesn't support the canvas element :(
-		</canvas>
+		<div id="container">
+			<canvas id="mainCanvas">
+				Your browser doesn't support the canvas element :(
+			</canvas>
+		</div>
 	</body>
 </html>
