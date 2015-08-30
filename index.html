@@ -3,16 +3,18 @@
 		<title>3DExperimentJS</title>
 		<meta charset="utf-8" />
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+		<script src="js/sylvester.js" type="text/javascript"></script>
+	    <script src="js/glUtils.js" type="text/javascript"></script>
 		<script src="js/main.js"></script>
 		<style type="text/css">
 			#container{
 				margin: 0px auto;
-				width: 1200px;
+				width: 680px;
 			}
 			
 			#mainCanvas{
 				width: inherit;
-				height: 680;
+				height: 480;
 			}
 			footer p{
 				text-align: center;
@@ -20,6 +22,18 @@
 				font-size: 12px;
 			}
 		</style>
+		<script id="shader-vs" type="x-shader/x-vertex">
+			attribute vec3 position;
+			
+			void main(void){
+				gl_Position = vec4(position, 1.0);
+			}
+		</script>
+		<script id="shader-fs" type="x-shader/x-fragment">
+			void main(void){
+				gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+			}
+		</script>
 	</head>
 	
 	<body onload="initApplication()">
