@@ -3,6 +3,8 @@ var gl = null;		//A reference to the WebGL context
 var positionLocation;
 var shaderProgram;
 var triangleVBO;
+var triangleVAO;
+var ext;
 
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
@@ -35,18 +37,18 @@ function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
-	gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-
+	ext.bindVertexArrayOES(triangleVAO);
+	
+	gl.useProgram(shaderProgram);
 	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+	ext.bindVertexArrayOES(null);
 }
 
 function initShaders(){
 	var vertexShader = getShader(gl, "shader-vs");
 	var fragmentShader = getShader(gl, "shader-fs");
 
-	var shaderProgram = gl.createProgram();
+	shaderProgram = gl.createProgram();
 	gl.attachShader(shaderProgram, vertexShader);
 	gl.attachShader(shaderProgram, fragmentShader);
 	gl.linkProgram(shaderProgram);
@@ -55,10 +57,7 @@ function initShaders(){
 		alert("Unable to init shader program");
 	}
 
-	gl.useProgram(shaderProgram);
-
 	positionLocation = gl.getAttribLocation(shaderProgram, "position");
-	gl.enableVertexAttribArray(positionLocation);
 }
 
 function getShader (gl, id) {
@@ -95,6 +94,10 @@ function getShader (gl, id) {
 }
 
 function initBuffers(){
+	ext = gl.getExtension("OES_vertex_array_object");
+	triangleVAO = ext.createVertexArrayOES();
+	ext.bindVertexArrayOES(triangleVAO);
+
 	triangleVBO = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
 
@@ -112,4 +115,8 @@ function initBuffers(){
 	var indices = [0,1,3,1,2,3];
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
+	gl.enableVertexAttribArray(positionLocation);
+	gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+	ext.bindVertexArrayOES(null);
 }
