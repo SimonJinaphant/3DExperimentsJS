@@ -12,11 +12,11 @@ function initApplication() {
 	try {
 		gl = canvas.getContext("webgl");
 	}catch(e){
-		
+		console.error(e);
 	}
 
 	if (!gl) {
-		alert("Failed initialize WebGL. Your browser may not support it.");
+		console.error("Failed initialize WebGL. Your browser may not support it.");
 		return;
 	}
 
@@ -54,7 +54,7 @@ function initShaders(){
 	gl.linkProgram(shaderProgram);
 
 	if(!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)){
-		alert("Unable to init shader program");
+		console.error("Unable to init shader program");
 	}
 
 	positionLocation = gl.getAttribLocation(shaderProgram, "position");
@@ -86,7 +86,7 @@ function getShader (gl, id) {
 	gl.shaderSource(shader, source);
 	gl.compileShader(shader);
 	if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
-		alert("Error in shader compilation: " + gl.getShaderInfoLog(shader));
+		console.error("Error in shader compilation: " + gl.getShaderInfoLog(shader));
 		return null;
 	}
 
@@ -98,9 +98,6 @@ function initBuffers(){
 	triangleVAO = ext.createVertexArrayOES();
 	ext.bindVertexArrayOES(triangleVAO);
 
-	triangleVBO = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
-
 	var triangleVertices = [
 		0.5, 0.5, 0,
 		0.5, -0.5, 0,
@@ -108,15 +105,20 @@ function initBuffers(){
 		-0.5, 0.5, 0
 	];
 
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
-
-	triangleEBO = gl.createBuffer();
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
 	var indices = [0,1,3,1,2,3];
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
+	//VERTEX POSITION BUFFER
+	triangleVBO = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
 	gl.enableVertexAttribArray(positionLocation);
 	gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+	//INDICES BUFFER
+	triangleEBO = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
 
 	ext.bindVertexArrayOES(null);
 }
