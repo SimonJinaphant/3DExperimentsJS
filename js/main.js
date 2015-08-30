@@ -1,6 +1,7 @@
 var canvas;			//A reference to our canvas element
 var gl = null;		//A reference to the WebGL context
 var positionLocation;
+var colorLocation;
 var shaderProgram;
 var triangleVBO;
 var triangleVAO;
@@ -58,6 +59,7 @@ function initShaders(){
 	}
 
 	positionLocation = gl.getAttribLocation(shaderProgram, "position");
+	colorLocation = gl.getAttribLocation(shaderProgram, "color");
 }
 
 function getShader (gl, id) {
@@ -94,30 +96,46 @@ function getShader (gl, id) {
 }
 
 function initBuffers(){
-	ext = gl.getExtension("OES_vertex_array_object");
+		ext = gl.getExtension("OES_vertex_array_object");
+
+	//VERTEX ARRAY OBJECT
 	triangleVAO = ext.createVertexArrayOES();
 	ext.bindVertexArrayOES(triangleVAO);
 
-	var triangleVertices = [
-		0.5, 0.5, 0,
-		0.5, -0.5, 0,
-		-0.5, -0.5, 0,
-		-0.5, 0.5, 0
-	];
+		var triangleVertices = [
+			0.5, 0.5, 0,
+			0.5, -0.5, 0,
+			-0.5, -0.5, 0,
+			-0.5, 0.5, 0
+		];
 
-	var indices = [0,1,3,1,2,3];
+		var triangleColor = [
+			1.0,  1.0,  1.0,  1.0,    // white
+			1.0,  0.0,  0.0,  1.0,    // red
+			0.0,  1.0,  0.0,  1.0,    // green
+			0.0,  0.0,  1.0,  1.0     // blue
+		];
 
-	//VERTEX POSITION BUFFER
-	triangleVBO = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
-	gl.enableVertexAttribArray(positionLocation);
-	gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+		var indices = [0,1,3,1,2,3];
 
-	//INDICES BUFFER
-	triangleEBO = gl.createBuffer();
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+		//POSITION BUFFER
+		triangleVBO = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(positionLocation);
+		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+		//COLOR BUFFER
+		triangleColorVBO = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorVBO);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleColor), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(colorLocation);
+		gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+
+		//INDICES BUFFER
+		triangleEBO = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
 
 	ext.bindVertexArrayOES(null);
