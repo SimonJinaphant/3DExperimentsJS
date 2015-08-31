@@ -3,7 +3,9 @@ var gl = null;			//A reference to the WebGL context
 var ext = null;			//Handler for WebGL's Vertex Array Object extension
 
 var positionLocation;
-var colorLocation;
+var textureLocation;
+var textureHandler;
+var textureImage;
 
 var shaderProgram;
 var triangleVAO;
@@ -28,8 +30,10 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
+
 	initShaders();
 	initBuffers();
+	initTextures();
 
 	//Our main loop
 	setInterval(renderScene, 15);
@@ -42,6 +46,9 @@ function renderScene() {
 	
 	ext.bindVertexArrayOES(triangleVAO);
 		gl.useProgram(shaderProgram);
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE2D, textureHandler);
+		gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 	ext.bindVertexArrayOES(null);
 }
@@ -60,7 +67,7 @@ function initShaders(){
 	}
 
 	positionLocation = gl.getAttribLocation(shaderProgram, "position");
-	colorLocation = gl.getAttribLocation(shaderProgram, "color");
+	textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
 }
 
 function loadShader(shaderID) {
@@ -95,11 +102,33 @@ function loadShader(shaderID) {
 	gl.compileShader(shader);
 
 	if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
-		console.error("Error in shader compilation: " + gl.loadShaderInfoLog(shader));
+		console.error("Error in shader compilation: " + gl.getShaderInfoLog(shader));
 		return null;
 	}
 
 	return shader;
+}
+
+function initTextures(){
+	textureHandler = gl.createTexture();
+	textureHandler.crossOrigin = "anonymous";
+	textureHandler.image = new Image();
+	textureHandler.image.onload = function(){
+		handleTexture(textureHandler);
+	};
+	textureHandler.image.src = "img/poly.png";
+}
+
+function handleTexture(handler){
+	gl.bindTexture(gl.TEXTURE2D, handler);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	gl.texImage2D(gl.TEXTURE2D, 0, gl.RBGA, gl.RBGA, gl.UNSIGNED_BYTE, handler.image);
+	gl.texParameteri(gl.TEXTURE2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+	gl.generateMipmap(gl.TEXTURE2D);
+
+	gl.bindTexture(gl.TEXTURE2D, null);
+
 }
 
 function initBuffers(){
@@ -115,16 +144,17 @@ function initBuffers(){
 			-0.5, 0.5, 0.0		//Top left
 		];
 
-		var triangleColor = [
-			1.0, 1.0, 1.0, 1.0,    // White
-			1.0, 0.0, 0.0, 1.0,    // Red
-			0.0, 1.0, 0.0, 1.0,    // Green
-			0.0, 0.0, 1.0, 1.0     // Blue
-		];
 
 		var triangleIndices = [
 			0, 1, 3,	//Top right triangle
 			1, 2, 3		//Bottom left triangle
+		];
+
+		var triangleTexture = [
+			1.0, 1.0,
+			1.0, 0.0,
+			0.0, 0.0,
+			0.0, 1.0,
 		];
 
 		//POSITION BUFFER
@@ -135,11 +165,11 @@ function initBuffers(){
 		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//COLOR BUFFER
-		var triangleColorVBO = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleColor), gl.STATIC_DRAW);
-		gl.enableVertexAttribArray(colorLocation);
-		gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+		var triangleTextureVBO = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, triangleTextureVBO);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleTexture), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(textureLocation);
+		gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
 
 		//INDICES BUFFER
 		var triangleEBO = gl.createBuffer();
