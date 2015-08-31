@@ -4,10 +4,10 @@ var ext = null;			//Handler for WebGL's Vertex Array Object extension
 
 var positionLocation;
 var textureLocation;
-var textureHandler;
-var textureImage;
 
 var shaderProgram;
+var textureHandler;
+
 var triangleVAO;
 
 function initApplication() {
@@ -25,7 +25,7 @@ function initApplication() {
 		return;
 	}
 
-	gl.clearColor(0.7, 0.3, 0.5, 1.0);
+	gl.clearColor(0.0, 0.0, 0.0, 0.85);
 	gl.clearDepth(1.0);
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
@@ -47,7 +47,7 @@ function renderScene() {
 	ext.bindVertexArrayOES(triangleVAO);
 		gl.useProgram(shaderProgram);
 		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE2D, textureHandler);
+		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
 		gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 	ext.bindVertexArrayOES(null);
@@ -113,21 +113,24 @@ function initTextures(){
 	textureHandler = gl.createTexture();
 	textureHandler.crossOrigin = "anonymous";
 	textureHandler.image = new Image();
+	textureHandler.image.crossOrigin = "anonymous";
 	textureHandler.image.onload = function(){
 		handleTexture(textureHandler);
 	};
-	textureHandler.image.src = "img/poly.png";
+	textureHandler.image.src = "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/poly.png";
 }
 
 function handleTexture(handler){
-	gl.bindTexture(gl.TEXTURE2D, handler);
+	gl.bindTexture(gl.TEXTURE_2D, handler);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	gl.texImage2D(gl.TEXTURE2D, 0, gl.RBGA, gl.RBGA, gl.UNSIGNED_BYTE, handler.image);
-	gl.texParameteri(gl.TEXTURE2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-	gl.generateMipmap(gl.TEXTURE2D);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, handler.image);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	//gl.generateMipmap(gl.TEXTURE_2D);
 
-	gl.bindTexture(gl.TEXTURE2D, null);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 
 }
 
