@@ -33,10 +33,9 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
-
 	viewMatrix = makePerspective(45, 680/480, 0.1, 100.0);
 	loadIdentity();
-	mvTranslate([-0.0, 0.0, -6.0]);
+	mvTranslate([0.0, 0.2, -3.0]);
 
 	initShaders();
 	initBuffers();
@@ -52,7 +51,7 @@ function renderScene() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	ext.bindVertexArrayOES(triangleVAO);
-		gl.useProgram(shaderProgram);
+		//gl.useProgram(shaderProgram);
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
