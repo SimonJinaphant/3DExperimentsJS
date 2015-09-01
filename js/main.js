@@ -2,6 +2,9 @@ var canvas = null;		//A reference to our canvas element
 var gl = null;			//A reference to the WebGL context
 var ext = null;			//Handler for WebGL's Vertex Array Object extension
 
+var perspectiveMatrix;
+var mvMatrix;
+
 var positionLocation;
 var textureLocation;
 
@@ -31,6 +34,10 @@ function initApplication() {
 	gl.depthFunc(gl.LEQUAL);
 
 
+	perspectiveMatrix = makePerspective(45, 680/480, 0.1, 100.0);
+	loadIdentity();
+	mvTranslate([-0.0, 0.0, -6.0]);
+
 	initShaders();
 	initBuffers();
 	initTextures();
@@ -43,12 +50,12 @@ function initApplication() {
 function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
+
 	ext.bindVertexArrayOES(triangleVAO);
 		gl.useProgram(shaderProgram);
+
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
-		gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 	ext.bindVertexArrayOES(null);
 }
@@ -68,6 +75,17 @@ function initShaders(){
 
 	positionLocation = gl.getAttribLocation(shaderProgram, "position");
 	textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
+	
+	gl.useProgram(shaderProgram);
+
+	gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
+
+
+	var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
+
+	var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
 }
 
 function loadShader(shaderID) {
@@ -181,4 +199,16 @@ function initBuffers(){
 
 
 	ext.bindVertexArrayOES(null);
+}
+
+function loadIdentity() {
+  mvMatrix = Matrix.I(4);
+}
+
+function multMatrix(m) {
+  mvMatrix = mvMatrix.x(m);
+}
+
+function mvTranslate(v) {
+  multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }

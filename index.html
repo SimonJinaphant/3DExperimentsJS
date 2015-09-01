@@ -14,7 +14,7 @@
 			
 			#mainCanvas{
 				width: inherit;
-				height: 680;
+				height: 480;
 			}
 			footer p{
 				text-align: center;
@@ -26,10 +26,13 @@
 			attribute vec3 position;
 			attribute vec2 textureCoord;
 
+			uniform mat4 uPMatrix;
+			uniform mat4 uMVMatrix;
+
 			varying vec2 vTexture;
 			
 			void main(void){
-				gl_Position = vec4(position, 1.0);
+				gl_Position = uPMatrix * uMVMatrix * vec4(position, 1.0);
 				vTexture = textureCoord;
 			}
 		</script>
