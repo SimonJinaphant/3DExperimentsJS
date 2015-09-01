@@ -26,24 +26,24 @@
 			attribute vec3 position;
 			attribute vec2 textureCoord;
 
-			uniform mat4 uPMatrix;
-			uniform mat4 uMVMatrix;
+			uniform mat4 view;
+			uniform mat4 model;
 
-			varying vec2 vTexture;
+			varying vec2 texture;
 			
 			void main(void){
-				gl_Position = uPMatrix * uMVMatrix * vec4(position, 1.0);
-				vTexture = textureCoord;
+				gl_Position = view * model * vec4(position, 1.0);
+				texture = textureCoord;
 			}
 		</script>
 		<script id="shader-fs" type="x-shader/x-fragment">
 			precision mediump float;
-			varying vec2 vTexture;
+			varying vec2 texture;
 
 			uniform sampler2D uSampler;
 
 			void main(void){
-				gl_FragColor = texture2D(uSampler, vec2(vTexture.s, vTexture.t));
+				gl_FragColor = texture2D(uSampler, vec2(texture.s, texture.t));
 			}
 		</script>
 	</head>
