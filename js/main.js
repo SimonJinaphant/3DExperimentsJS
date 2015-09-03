@@ -43,7 +43,6 @@ function initApplication() {
 
 	//Our main loop
 	setInterval(renderScene, 15);
-	
 }
 
 function renderScene() {
