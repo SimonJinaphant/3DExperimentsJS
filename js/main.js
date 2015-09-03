@@ -33,9 +33,9 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
+	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
-	loadIdentity();
-	mvTranslate([0.0, 0.0, -2.4]);
+	modelMatrix = Matrix.I(4).x(Matrix.Translation($V([0.0, 0.0, -2.4])).ensure4x4());
 
 	initShaders();
 	initBuffers();
@@ -197,16 +197,4 @@ function initBuffers(){
 
 
 	ext.bindVertexArrayOES(null);
-}
-
-function loadIdentity() {
-  modelMatrix = Matrix.I(4);
-}
-
-function multMatrix(m) {
-  modelMatrix = modelMatrix.x(m);
-}
-
-function mvTranslate(v) {
-  multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
