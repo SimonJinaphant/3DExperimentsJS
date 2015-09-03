@@ -33,9 +33,9 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
-	viewMatrix = makePerspective(45, 680/480, 0.1, 100.0);
+	viewMatrix = makePerspective(45, 1000/760, 0.1, 100.0);
 	loadIdentity();
-	mvTranslate([0.0, 0.2, -3.0]);
+	mvTranslate([0.0, 0.0, -2.0]);
 
 	initShaders();
 	initBuffers();
@@ -133,18 +133,18 @@ function initTextures(){
 	textureHandler.image.onload = function(){
 		handleTexture(textureHandler);
 	};
-	textureHandler.image.src = "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/poly.png";
+	textureHandler.image.src = "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png";
 }
 
 function handleTexture(handler){
 	gl.bindTexture(gl.TEXTURE_2D, handler);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, handler.image);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	//gl.generateMipmap(gl.TEXTURE_2D);
+	gl.generateMipmap(gl.TEXTURE_2D);
 
 	gl.bindTexture(gl.TEXTURE_2D, null);
 
