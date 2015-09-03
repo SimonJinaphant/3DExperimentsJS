@@ -11,11 +11,6 @@
 				margin: 0px auto;
 				width: 1000px;
 			}
-			
-			#mainCanvas{
-				width: inherit;
-				height: 760;
-			}
 			footer p{
 				text-align: center;
 				font-family: "Open Sans";
@@ -50,7 +45,8 @@
 	
 	<body onload="initApplication()">
 		<div id="container">
-			<canvas id="mainCanvas">
+			<canvas id="mainCanvas" width="980" height="640">
+				<!-- CANVAS'S DIMENSIONS NEEDS TO BE SPECIFIED INLINE-->
 				Your browser doesn't support the canvas element :(
 			</canvas>
 			<footer>

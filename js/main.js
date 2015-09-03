@@ -33,9 +33,9 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
-	viewMatrix = makePerspective(45, 1000/760, 0.1, 100.0);
+	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
 	loadIdentity();
-	mvTranslate([0.0, 0.0, -2.0]);
+	mvTranslate([0.0, 0.0, -2.4]);
 
 	initShaders();
 	initBuffers();
