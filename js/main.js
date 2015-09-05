@@ -41,7 +41,7 @@ function initApplication() {
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
 	modelMatrix = Matrix.I(4);
-	multi(Matrix.Translation($V([0.0, 0.0, -2.4])).ensure4x4());
+	multi(Matrix.Translation($V([0.0, 0.0, -6.4])).ensure4x4());
 
 	initShaders();
 	initBuffers();
@@ -59,12 +59,12 @@ function renderScene() {
 	ext.bindVertexArrayOES(triangleVAO);
 		//gl.useProgram(shaderProgram);
 		mvPushMatrix();
-		mvRotate(squareRotation, [0, 0, 1]);
+		mvRotate(squareRotation, [1, 0, 1]);
 		
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
 		updateModel();
-		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 
 		mvPopMatrix();
 	ext.bindVertexArrayOES(null);
@@ -179,23 +179,84 @@ function initBuffers(){
 	ext.bindVertexArrayOES(triangleVAO);
 
 		var trianglePosition = [
-			0.5, 0.5, 0.0,		//Top right
-			0.5, -0.5, 0.0,		//Bottom right
-			-0.5, -0.5, 0.0,	//Bottom left
-			-0.5, 0.5, 0.0		//Top left
+  // Front face
+  -1.0, -1.0,  1.0,
+   1.0, -1.0,  1.0,
+   1.0,  1.0,  1.0,
+  -1.0,  1.0,  1.0,
+  
+  // Back face
+  -1.0, -1.0, -1.0,
+  -1.0,  1.0, -1.0,
+   1.0,  1.0, -1.0,
+   1.0, -1.0, -1.0,
+  
+  // Top face
+  -1.0,  1.0, -1.0,
+  -1.0,  1.0,  1.0,
+   1.0,  1.0,  1.0,
+   1.0,  1.0, -1.0,
+  
+  // Bottom face
+  -1.0, -1.0, -1.0,
+   1.0, -1.0, -1.0,
+   1.0, -1.0,  1.0,
+  -1.0, -1.0,  1.0,
+  
+  // Right face
+   1.0, -1.0, -1.0,
+   1.0,  1.0, -1.0,
+   1.0,  1.0,  1.0,
+   1.0, -1.0,  1.0,
+  
+  // Left face
+  -1.0, -1.0, -1.0,
+  -1.0, -1.0,  1.0,
+  -1.0,  1.0,  1.0,
+  -1.0,  1.0, -1.0
+
 		];
 
 
 		var triangleIndices = [
-			0, 1, 3,	//Top right triangle
-			1, 2, 3		//Bottom left triangle
+  0,  1,  2,      0,  2,  3,    // front
+  4,  5,  6,      4,  6,  7,    // back
+  8,  9,  10,     8,  10, 11,   // top
+  12, 13, 14,     12, 14, 15,   // bottom
+  16, 17, 18,     16, 18, 19,   // right
+  20, 21, 22,     20, 22, 23    // left
 		];
 
 		var triangleTexture = [
-			1.0, 1.0,
-			1.0, 0.0,
-			0.0, 0.0,
-			0.0, 1.0,
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Back
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Top
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Bottom
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Right
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Left
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0
 		];
 
 		//POSITION BUFFER
