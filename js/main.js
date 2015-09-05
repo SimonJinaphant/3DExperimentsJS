@@ -1,23 +1,28 @@
+//IMPORTANT OPENGL REFERENCES
 var canvas = null;		//A reference to our canvas element
 var gl = null;			//A reference to the WebGL context
 var ext = null;			//Handler for WebGL's Vertex Array Object extension
 
+//MATRICES DATA
 var viewMatrix;
 var modelMatrix;
 var normalMatrix;
 
+//VERTEX ATTRIBUTE LOCATIONS
 var positionLocation;
 var textureLocation;
 var normalLocation;
 
+//UNIFORM LOCATIONS
 var modelLocation;
 var normalMatrixLocation;
 
+//GL OBJECT HANDLERS
 var shaderProgram;
 var textureHandler;
-
 var cubeVAO;
 
+//FOR ROTATION TRANSFORMATION
 var squareRotation = 0.0;
 var lastSquareUpdateTime = 0;
 var mvMatrixStack = [];
@@ -70,14 +75,14 @@ function renderScene() {
 		mvPushMatrix();
 			mvTranslate([-1.7, 0.0, -4.4]);
 			mvRotate(squareRotation, [1, 0, 1]);
-			updateModelUniform();
+			updateUniformMatrices();
 			gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 
 		mvPushMatrix();
 			mvTranslate([0.4, 0.3, -2.4]);
 			mvRotate(squareRotation, [0, 1, 1]);
-			updateModelUniform();
+			updateUniformMatrices();
 			gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 
@@ -104,18 +109,21 @@ function initShaders(){
 		console.error("Unable to init shader program");
 	}
 
+	//DETERMINE THE ATTRIBUTE LOCATIONS FOR THE VERTEX 
 	positionLocation = gl.getAttribLocation(shaderProgram, "position");
 	textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
 	normalLocation = gl.getAttribLocation(shaderProgram, "normal");
 	
-	//SET THE UNIFORM VARIABLES
+	//DETERMINE THE UNIFORM VARIABLE LOCATIONS
 	gl.useProgram(shaderProgram);
 
 		gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
+		//THE VIEW MATRIX CAN BE SET ONCE SINCE THE CAMERA ISN'T MOVING
 		var viewLocation = gl.getUniformLocation(shaderProgram, "view");
 		gl.uniformMatrix4fv(viewLocation, false, new Float32Array(viewMatrix.flatten()));
 
+		//DETERMINE THE LOCATION, BUT DON'T UPDATE/SEND DATA TO THEM YET
 		modelLocation = gl.getUniformLocation(shaderProgram, "model");
 		normalMatrixLocation = gl.getUniformLocation(shaderProgram, "normalM");
 }
@@ -337,13 +345,11 @@ function initBuffers(){
 	ext.bindVertexArrayOES(null);
 }
 
-function updateModelUniform(){
+function updateUniformMatrices(){
+	//THESE TWO UNIFORM MATRICES MUST BE UPDATED PERIODICALLY
 	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
-	normalMatrix = modelMatrix.inverse();
-	normalMatrix = normalMatrix.transpose();
+	normalMatrix = modelMatrix.inverse().transpose();
 	gl.uniformMatrix4fv(normalMatrixLocation, false, new Float32Array(normalMatrix.flatten()));
-
-
 }
 
 function multi(m){
