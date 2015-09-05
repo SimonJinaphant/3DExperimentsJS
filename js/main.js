@@ -7,16 +7,16 @@ var modelMatrix;
 
 var positionLocation;
 var textureLocation;
+var modelLocation;
 
 var shaderProgram;
 var textureHandler;
 
-var triangleVAO;
+var cubeVAO;
 
 var squareRotation = 0.0;
 var lastSquareUpdateTime = 0;
 var mvMatrixStack = [];
-var modelLocation;
 
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
@@ -56,7 +56,7 @@ function renderScene() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
 	
-	ext.bindVertexArrayOES(triangleVAO);
+	ext.bindVertexArrayOES(cubeVAO);
 		//gl.useProgram(shaderProgram);
 		mvPushMatrix();
 		mvRotate(squareRotation, [1, 0, 1]);
@@ -163,7 +163,7 @@ function handleTexture(handler){
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, handler.image);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	gl.generateMipmap(gl.TEXTURE_2D);
@@ -175,108 +175,107 @@ function handleTexture(handler){
 function initBuffers(){
 	
 	//VERTEX ARRAY OBJECT
-	triangleVAO = ext.createVertexArrayOES();
-	ext.bindVertexArrayOES(triangleVAO);
+	cubeVAO = ext.createVertexArrayOES();
+	ext.bindVertexArrayOES(cubeVAO);
 
-		var trianglePosition = [
-  // Front face
-  -1.0, -1.0,  1.0,
-   1.0, -1.0,  1.0,
-   1.0,  1.0,  1.0,
-  -1.0,  1.0,  1.0,
-  
-  // Back face
-  -1.0, -1.0, -1.0,
-  -1.0,  1.0, -1.0,
-   1.0,  1.0, -1.0,
-   1.0, -1.0, -1.0,
-  
-  // Top face
-  -1.0,  1.0, -1.0,
-  -1.0,  1.0,  1.0,
-   1.0,  1.0,  1.0,
-   1.0,  1.0, -1.0,
-  
-  // Bottom face
-  -1.0, -1.0, -1.0,
-   1.0, -1.0, -1.0,
-   1.0, -1.0,  1.0,
-  -1.0, -1.0,  1.0,
-  
-  // Right face
-   1.0, -1.0, -1.0,
-   1.0,  1.0, -1.0,
-   1.0,  1.0,  1.0,
-   1.0, -1.0,  1.0,
-  
-  // Left face
-  -1.0, -1.0, -1.0,
-  -1.0, -1.0,  1.0,
-  -1.0,  1.0,  1.0,
-  -1.0,  1.0, -1.0
+		var positionData = [
+			// Front face
+			-1.0, -1.0,  1.0,
+			1.0, -1.0,  1.0,
+			1.0,  1.0,  1.0,
+			-1.0,  1.0,  1.0,
 
+			// Back face
+			-1.0, -1.0, -1.0,
+			-1.0,  1.0, -1.0,
+			1.0,  1.0, -1.0,
+			1.0, -1.0, -1.0,
+
+			// Top face
+			-1.0,  1.0, -1.0,
+			-1.0,  1.0,  1.0,
+			1.0,  1.0,  1.0,
+			1.0,  1.0, -1.0,
+
+			// Bottom face
+			-1.0, -1.0, -1.0,
+			1.0, -1.0, -1.0,
+			1.0, -1.0,  1.0,
+			-1.0, -1.0,  1.0,
+
+			// Right face
+			1.0, -1.0, -1.0,
+			1.0,  1.0, -1.0,
+			1.0,  1.0,  1.0,
+			1.0, -1.0,  1.0,
+
+			// Left face
+			-1.0, -1.0, -1.0,
+			-1.0, -1.0,  1.0,
+			-1.0,  1.0,  1.0,
+			-1.0,  1.0, -1.0
 		];
 
 
-		var triangleIndices = [
-  0,  1,  2,      0,  2,  3,    // front
-  4,  5,  6,      4,  6,  7,    // back
-  8,  9,  10,     8,  10, 11,   // top
-  12, 13, 14,     12, 14, 15,   // bottom
-  16, 17, 18,     16, 18, 19,   // right
-  20, 21, 22,     20, 22, 23    // left
+		var indicesData = [
+			0,  1,  2,      0,  2,  3,    // front
+			4,  5,  6,      4,  6,  7,    // back
+			8,  9,  10,     8,  10, 11,   // top
+			12, 13, 14,     12, 14, 15,   // bottom
+			16, 17, 18,     16, 18, 19,   // right
+			20, 21, 22,     20, 22, 23    // left
 		];
 
-		var triangleTexture = [
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Back
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Top
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Bottom
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Right
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Left
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0
+		var textureData = [
+			0.0, 0.0,
+			1.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0,
+			// Back
+			0.0, 0.0,
+			1.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0,
+			// Top
+			0.0, 0.0,
+			1.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0,
+			// Bottom
+			0.0, 0.0,
+			1.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0,
+			// Right
+			0.0, 0.0,
+			1.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0,
+			// Left
+			0.0, 0.0,
+			1.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0
 		];
 
 		//POSITION BUFFER
-		var triangleVBO = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(trianglePosition), gl.STATIC_DRAW);
+		var positionVBO = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, positionVBO);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionData), gl.STATIC_DRAW);
 		gl.enableVertexAttribArray(positionLocation);
 		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//COLOR BUFFER
-		var triangleTextureVBO = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, triangleTextureVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleTexture), gl.STATIC_DRAW);
+		var textureVBO= gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, textureVBO);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureData), gl.STATIC_DRAW);
 		gl.enableVertexAttribArray(textureLocation);
 		gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
 
 		//INDICES BUFFER
-		var triangleEBO = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(triangleIndices), gl.STATIC_DRAW);
+		var indicesEBO = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesEBO);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indicesData), gl.STATIC_DRAW);
 
 
 	ext.bindVertexArrayOES(null);
