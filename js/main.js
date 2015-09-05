@@ -13,6 +13,11 @@ var textureHandler;
 
 var triangleVAO;
 
+var squareRotation = 0.0;
+var lastSquareUpdateTime = 0;
+var mvMatrixStack = [];
+var modelLocation;
+
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
 		
@@ -35,27 +40,45 @@ function initApplication() {
 
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
-	modelMatrix = Matrix.I(4).x(Matrix.Translation($V([0.0, 0.0, -2.4])).ensure4x4());
+	modelMatrix = Matrix.I(4);
+	multi(Matrix.Translation($V([0.0, 0.0, -2.4])).ensure4x4());
 
 	initShaders();
 	initBuffers();
 	initTextures();
 
 	//Our main loop
-	setInterval(renderScene, 15);
+	setInterval(renderScene, 150);
 }
 
 function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+	
+	
 	ext.bindVertexArrayOES(triangleVAO);
 		//gl.useProgram(shaderProgram);
-
+		mvPushMatrix();
+		mvRotate(squareRotation, [1, 0, 1]);
+		
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
+		updateModel();
 		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+
+		mvPopMatrix();
 	ext.bindVertexArrayOES(null);
+	
+
+	var currentTime = Date.now();
+	if(lastSquareUpdateTime){
+		var delta = currentTime - lastSquareUpdateTime;
+		squareRotation += (30 * delta) / 1000.0;
+	}
+	lastSquareUpdateTime = currentTime;
+
+	//console.log(squareRotation);
+
 }
 
 function initShaders(){
@@ -82,8 +105,7 @@ function initShaders(){
 		var viewLocation = gl.getUniformLocation(shaderProgram, "view");
 		gl.uniformMatrix4fv(viewLocation, false, new Float32Array(viewMatrix.flatten()));
 
-		var modelLocation = gl.getUniformLocation(shaderProgram, "model");
-		gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
+		modelLocation = gl.getUniformLocation(shaderProgram, "model");
 }
 
 function loadShader(shaderID) {
@@ -197,4 +219,36 @@ function initBuffers(){
 
 
 	ext.bindVertexArrayOES(null);
+}
+
+function updateModel(){
+	
+	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
+}
+
+function multi(m){
+	modelMatrix = modelMatrix.x(m);
+}
+
+function mvPushMatrix(m){
+	if(m){
+		mvMatrixStack.push(m.dup());
+		modelMatrix = m.dup();
+	} else {
+		mvMatrixStack.push(modelMatrix.dup());
+	}
+}
+
+function mvPopMatrix(){
+	if(!mvMatrixStack.length){
+		throw("Can't pop anymore");
+	}
+	modelMatrix = mvMatrixStack.pop();
+	return modelMatrix;
+}
+
+function mvRotate(angle, v){
+	var inRadians = 45 * Math.PI / 180.0;
+	var m = Matrix.Rotation(inRadians, $V([v[0], v[1], v[2]])).ensure4x4();
+	multi(m);
 }
