@@ -4,10 +4,14 @@ var ext = null;			//Handler for WebGL's Vertex Array Object extension
 
 var viewMatrix;
 var modelMatrix;
+var normalMatrix;
 
 var positionLocation;
 var textureLocation;
+var normalLocation;
+
 var modelLocation;
+var normalMatrixLocation;
 
 var shaderProgram;
 var textureHandler;
@@ -41,7 +45,7 @@ function initApplication() {
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
 	modelMatrix = Matrix.I(4);
-	
+	normalMatrix = modelMatrix;
 
 	initShaders();
 	initBuffers();
@@ -102,6 +106,7 @@ function initShaders(){
 
 	positionLocation = gl.getAttribLocation(shaderProgram, "position");
 	textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
+	normalLocation = gl.getAttribLocation(shaderProgram, "normal");
 	
 	//SET THE UNIFORM VARIABLES
 	gl.useProgram(shaderProgram);
@@ -112,6 +117,7 @@ function initShaders(){
 		gl.uniformMatrix4fv(viewLocation, false, new Float32Array(viewMatrix.flatten()));
 
 		modelLocation = gl.getUniformLocation(shaderProgram, "model");
+		normalMatrixLocation = gl.getUniformLocation(shaderProgram, "normalM");
 }
 
 function loadShader(shaderID) {
@@ -222,6 +228,43 @@ function initBuffers(){
 			-0.5,  0.5, -0.5
 		];
 
+		var normalData = [
+			// Front
+			0.0,  0.0,  1.0,
+			0.0,  0.0,  1.0,
+			0.0,  0.0,  1.0,
+			0.0,  0.0,  1.0,
+
+			// Back
+			0.0,  0.0, -1.0,
+			0.0,  0.0, -1.0,
+			0.0,  0.0, -1.0,
+			0.0,  0.0, -1.0,
+
+			// Top
+			0.0,  1.0,  0.0,
+			0.0,  1.0,  0.0,
+			0.0,  1.0,  0.0,
+			0.0,  1.0,  0.0,
+
+			// Bottom
+			0.0, -1.0,  0.0,
+			0.0, -1.0,  0.0,
+			0.0, -1.0,  0.0,
+			0.0, -1.0,  0.0,
+
+			// Right
+			1.0,  0.0,  0.0,
+			1.0,  0.0,  0.0,
+			1.0,  0.0,  0.0,
+			1.0,  0.0,  0.0,
+
+			// Left
+			-1.0,  0.0,  0.0,
+			-1.0,  0.0,  0.0,
+			-1.0,  0.0,  0.0,
+			-1.0,  0.0,  0.0
+		];
 
 		var indicesData = [
 			0,  1,  2,      0,  2,  3,    // front
@@ -271,6 +314,13 @@ function initBuffers(){
 		gl.enableVertexAttribArray(positionLocation);
 		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
+		//NORMAL BUFFER
+		var normalVBO = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalVBO);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(normalLocation);
+		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
 		//TEXTURE BUFFER
 		var textureVBO= gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureVBO);
@@ -289,6 +339,11 @@ function initBuffers(){
 
 function updateModelUniform(){
 	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
+	normalMatrix = modelMatrix.inverse();
+	normalMatrix = normalMatrix.transpose();
+	gl.uniformMatrix4fv(normalMatrixLocation, false, new Float32Array(normalMatrix.flatten()));
+
+
 }
 
 function multi(m){

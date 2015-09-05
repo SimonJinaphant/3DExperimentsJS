@@ -20,25 +20,39 @@
 		<script id="shader-vs" type="x-shader/x-vertex">
 			attribute vec3 position;
 			attribute vec2 textureCoord;
+			attribute vec3 normal;
 
 			uniform mat4 view;
 			uniform mat4 model;
+			uniform mat4 normalM;
 
 			varying vec2 texture;
+			varying vec3 vLighting;
 			
 			void main(void){
 				gl_Position = view * model * vec4(position, 1.0);
 				texture = textureCoord;
+
+				//Lighting effect
+				highp vec3 ambient = vec3(0.6, 0.6 ,0.6);
+				highp vec3 directionalLight = vec3(0.5, 0.5, 0.75);
+				highp vec3 directionalVector = vec3(0.85, 0.8, 0.75);
+
+				highp vec4 transformedNormal = normalM * vec4(normal, 1.0);
+				highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+				vLighting = ambient + (directionalLight * directional);
 			}
 		</script>
 		<script id="shader-fs" type="x-shader/x-fragment">
 			precision mediump float;
 			varying vec2 texture;
+			varying vec3 vLighting;
 
 			uniform sampler2D uSampler;
 
 			void main(void){
-				gl_FragColor = texture2D(uSampler, vec2(texture.s, texture.t));
+				mediump vec4 texelColor = texture2D(uSampler, vec2(texture.s, texture.t));
+				gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
 			}
 		</script>
 	</head>
