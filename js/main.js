@@ -41,7 +41,7 @@ function initApplication() {
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
 	modelMatrix = Matrix.I(4);
-	multi(Matrix.Translation($V([0.0, 0.0, -6.4])).ensure4x4());
+	
 
 	initShaders();
 	initBuffers();
@@ -60,15 +60,23 @@ function renderScene() {
 	
 	ext.bindVertexArrayOES(cubeVAO);
 		//gl.useProgram(shaderProgram);
-		mvPushMatrix();
-		mvRotate(squareRotation, [1, 0, 1]);
-		updateModelUniform();
-
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
-		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
-
+		
+		mvPushMatrix();
+			mvTranslate([-1.7, 0.0, -6.4]);
+			mvRotate(squareRotation, [1, 0, 1]);
+			updateModelUniform();
+			gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
+
+		mvPushMatrix();
+			mvTranslate([1.7, 1.3, -6.4]);
+			mvRotate(squareRotation, [0, 1, 1]);
+			updateModelUniform();
+			gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+		mvPopMatrix();
+
 	ext.bindVertexArrayOES(null);
 	
 
@@ -306,6 +314,9 @@ function mvPopMatrix(){
 
 function mvRotate(angle, v){
 	var inRadians = angle * Math.PI / 180.0;
-	var m = Matrix.Rotation(inRadians, $V([v[0], v[1], v[2]])).ensure4x4();
-	multi(m);
+	multi(Matrix.Rotation(inRadians, $V([v[0], v[1], v[2]])).ensure4x4());
+}
+
+function mvTranslate(v){
+	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
