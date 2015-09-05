@@ -47,6 +47,9 @@ function initApplication() {
 	initBuffers();
 	initTextures();
 
+	gl.enable(gl.CULL_FACE);
+	gl.cullFace(gl.BACK);
+
 	//Our main loop
 	setInterval(renderScene, 15);
 }
@@ -55,15 +58,14 @@ function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
-	
 	ext.bindVertexArrayOES(cubeVAO);
 		//gl.useProgram(shaderProgram);
 		mvPushMatrix();
 		mvRotate(squareRotation, [1, 0, 1]);
-		
+		updateModelUniform();
+
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
-		updateModel();
 		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 
 		mvPopMatrix();
@@ -72,13 +74,9 @@ function renderScene() {
 
 	var currentTime = Date.now();
 	if(lastSquareUpdateTime){
-		var delta = currentTime - lastSquareUpdateTime;
-		squareRotation += (30 * delta) / 1000.0;
+		squareRotation += (30 * (currentTime - lastSquareUpdateTime)) / 1000.0;
 	}
 	lastSquareUpdateTime = currentTime;
-
-	//console.log(squareRotation);
-
 }
 
 function initShaders(){
@@ -265,7 +263,7 @@ function initBuffers(){
 		gl.enableVertexAttribArray(positionLocation);
 		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
-		//COLOR BUFFER
+		//TEXTURE BUFFER
 		var textureVBO= gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureVBO);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureData), gl.STATIC_DRAW);
@@ -281,7 +279,7 @@ function initBuffers(){
 	ext.bindVertexArrayOES(null);
 }
 
-function updateModel(){
+function updateModelUniform(){
 	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
 }
 
