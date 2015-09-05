@@ -48,7 +48,7 @@ function initApplication() {
 	initTextures();
 
 	//Our main loop
-	setInterval(renderScene, 150);
+	setInterval(renderScene, 15);
 }
 
 function renderScene() {
@@ -59,7 +59,7 @@ function renderScene() {
 	ext.bindVertexArrayOES(triangleVAO);
 		//gl.useProgram(shaderProgram);
 		mvPushMatrix();
-		mvRotate(squareRotation, [1, 0, 1]);
+		mvRotate(squareRotation, [0, 0, 1]);
 		
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
@@ -222,7 +222,6 @@ function initBuffers(){
 }
 
 function updateModel(){
-	
 	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
 }
 
@@ -248,7 +247,7 @@ function mvPopMatrix(){
 }
 
 function mvRotate(angle, v){
-	var inRadians = 45 * Math.PI / 180.0;
+	var inRadians = angle * Math.PI / 180.0;
 	var m = Matrix.Rotation(inRadians, $V([v[0], v[1], v[2]])).ensure4x4();
 	multi(m);
 }
