@@ -27,12 +27,34 @@ var squareRotation = 0.0;
 var lastSquareUpdateTime = 0;
 var mvMatrixStack = [];
 
+//FOR OBJ MESH
+var unpacked = {};
+unpacked.vertexPositions = [];
+unpacked.vertexNormals = [];
+unpacked.vertexTextures = [];
+unpacked.hashIndices = [];
+unpacked.vertexIndices = [];
+unpacked.index = 0;
+
+var meshData;
+
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
 		
 	try {
 		gl = canvas.getContext("webgl");
 		ext = gl.getExtension("OES_vertex_array_object");
+
+		$.ajax({
+			async: false,
+			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/nanosuit.obj",
+			success: function(data){
+				//console.log(data);
+				meshData = data;
+			},
+			dataType: 'text'
+        });
+
 	}catch(e){
 		console.error(e);
 	}
@@ -71,19 +93,12 @@ function renderScene() {
 		//gl.useProgram(shaderProgram);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
-		
-		mvPushMatrix();
-			mvTranslate([-1.7, 0.0, -4.4]);
-			mvRotate(squareRotation, [1, 0, 1]);
-			updateUniformMatrices();
-			gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
-		mvPopMatrix();
 
 		mvPushMatrix();
-			mvTranslate([0.4, 0.3, -2.4]);
-			mvRotate(squareRotation, [0, 1, 1]);
+			mvTranslate([0.0, -8.5, -18.5]);
+			mvRotate(squareRotation, [0, 1, 0]);
 			updateUniformMatrices();
-			gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl.TRIANGLES, unpacked.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 
 	ext.bindVertexArrayOES(null);
@@ -198,148 +213,34 @@ function initBuffers(){
 	cubeVAO = ext.createVertexArrayOES();
 	ext.bindVertexArrayOES(cubeVAO);
 
-		var positionData = [
-			// Front face
-			-0.5, -0.5,  0.5,
-			0.5, -0.5,  0.5,
-			0.5,  0.5,  0.5,
-			-0.5,  0.5,  0.5,
-
-			// Back face
-			-0.5, -0.5, -0.5,
-			-0.5,  0.5, -0.5,
-			0.5,  0.5, -0.5,
-			0.5, -0.5, -0.5,
-
-			// Top face
-			-0.5,  0.5, -0.5,
-			-0.5,  0.5,  0.5,
-			0.5,  0.5,  0.5,
-			0.5,  0.5, -0.5,
-
-			// Bottom face
-			-0.5, -0.5, -0.5,
-			0.5, -0.5, -0.5,
-			0.5, -0.5,  0.5,
-			-0.5, -0.5,  0.5,
-
-			// Right face
-			0.5, -0.5, -0.5,
-			0.5,  0.5, -0.5,
-			0.5,  0.5,  0.5,
-			0.5, -0.5,  0.5,
-
-			// Left face
-			-0.5, -0.5, -0.5,
-			-0.5, -0.5,  0.5,
-			-0.5,  0.5,  0.5,
-			-0.5,  0.5, -0.5
-		];
-
-		var normalData = [
-			// Front
-			0.0,  0.0,  1.0,
-			0.0,  0.0,  1.0,
-			0.0,  0.0,  1.0,
-			0.0,  0.0,  1.0,
-
-			// Back
-			0.0,  0.0, -1.0,
-			0.0,  0.0, -1.0,
-			0.0,  0.0, -1.0,
-			0.0,  0.0, -1.0,
-
-			// Top
-			0.0,  1.0,  0.0,
-			0.0,  1.0,  0.0,
-			0.0,  1.0,  0.0,
-			0.0,  1.0,  0.0,
-
-			// Bottom
-			0.0, -1.0,  0.0,
-			0.0, -1.0,  0.0,
-			0.0, -1.0,  0.0,
-			0.0, -1.0,  0.0,
-
-			// Right
-			1.0,  0.0,  0.0,
-			1.0,  0.0,  0.0,
-			1.0,  0.0,  0.0,
-			1.0,  0.0,  0.0,
-
-			// Left
-			-1.0,  0.0,  0.0,
-			-1.0,  0.0,  0.0,
-			-1.0,  0.0,  0.0,
-			-1.0,  0.0,  0.0
-		];
-
-		var indicesData = [
-			0,  1,  2,      0,  2,  3,    // front
-			4,  5,  6,      4,  6,  7,    // back
-			8,  9,  10,     8,  10, 11,   // top
-			12, 13, 14,     12, 14, 15,   // bottom
-			16, 17, 18,     16, 18, 19,   // right
-			20, 21, 22,     20, 22, 23    // left
-		];
-
-		var textureData = [
-			0.0, 0.0,
-			1.0, 0.0,
-			1.0, 1.0,
-			0.0, 1.0,
-			// Back
-			0.0, 0.0,
-			1.0, 0.0,
-			1.0, 1.0,
-			0.0, 1.0,
-			// Top
-			0.0, 0.0,
-			1.0, 0.0,
-			1.0, 1.0,
-			0.0, 1.0,
-			// Bottom
-			0.0, 0.0,
-			1.0, 0.0,
-			1.0, 1.0,
-			0.0, 1.0,
-			// Right
-			0.0, 0.0,
-			1.0, 0.0,
-			1.0, 1.0,
-			0.0, 1.0,
-			// Left
-			0.0, 0.0,
-			1.0, 0.0,
-			1.0, 1.0,
-			0.0, 1.0
-		];
+		var mesh = loadOBJ(meshData);
+		//console.log(unpacked.vertexPositions.length);
 
 		//POSITION BUFFER
 		var positionVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, positionVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionData), gl.STATIC_DRAW);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexPositions), gl.STATIC_DRAW);
 		gl.enableVertexAttribArray(positionLocation);
 		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//NORMAL BUFFER
 		var normalVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, normalVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexNormals), gl.STATIC_DRAW);
 		gl.enableVertexAttribArray(normalLocation);
 		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//TEXTURE BUFFER
 		var textureVBO= gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureData), gl.STATIC_DRAW);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexTextures), gl.STATIC_DRAW);
 		gl.enableVertexAttribArray(textureLocation);
 		gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
 
 		//INDICES BUFFER
 		var indicesEBO = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesEBO);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indicesData), gl.STATIC_DRAW);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(unpacked.vertexIndices), gl.STATIC_DRAW);
 
 
 	ext.bindVertexArrayOES(null);
@@ -381,3 +282,63 @@ function mvRotate(angle, v){
 function mvTranslate(v){
 	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
+
+function loadOBJ(data){
+	var vertexPositions = [];
+	var vertexNormals = [];
+	var vertexTextures = [];
+
+	var lines = data.split('\n');
+
+	var VERTEX_MATCH = /^v\s/;
+	var NORMAL_MATCH = /^vn\s/;
+	var TEXTURE_MATCH = /^vt\s/;
+	var FACE_MATCH = /^f\s/;
+	var WHITESPACE_MATCH = /\s+/;
+
+	for(var i = 0; i < lines.length; i++){
+		var line = lines[i].trim();
+		var elements = line.split(WHITESPACE_MATCH);
+		elements.shift(); //Deque the v, vn, or vt substring
+
+		if(VERTEX_MATCH.test(line)){
+			vertexPositions.push.apply(vertexPositions, elements);
+
+		} else if (NORMAL_MATCH.test(line)){
+			vertexNormals.push.apply(vertexNormals, elements);
+
+		} else if (TEXTURE_MATCH.test(line)){
+			vertexTextures.push.apply(vertexTextures, elements);
+
+		} else if (FACE_MATCH.test(line)){
+			//Time to link the data together
+
+			for(var j = 0, elementLength = elements.length; j < elementLength; j++){
+
+				if(elements[j] in unpacked.hashIndices){
+					unpacked.vertexIndices.push(unpacked.hashIndices[elements[j]]);
+				} else {
+					var vertex = elements[j].split('/');
+					// vertex[0] = vertex positions in obj, -1 to get 0 based index
+					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 0]);
+					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 1]);
+					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 2]);
+
+					if(vertexTextures.length){
+						unpacked.vertexTextures.push(+vertexTextures[(vertex[1] - 1) * 2 + 0]);
+						unpacked.vertexTextures.push(+vertexTextures[(vertex[1] - 1) * 2 + 1]);
+					}
+
+					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 0]);
+					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 1]);
+					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 2]);
+
+					unpacked.hashIndices[elements[j]] = unpacked.index;
+					unpacked.vertexIndices.push(unpacked.index);
+					unpacked.index += 1;
+				}
+			}
+		}
+	}
+}
+

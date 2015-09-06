@@ -5,7 +5,8 @@
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 		<script src="js/libs/sylvester.js" type="text/javascript"></script>
 	    <script src="js/libs/glUtils.js" type="text/javascript"></script>
-		<script src="js/main.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
 		<style type="text/css">
 			#container{
 				margin: 0px auto;
@@ -35,7 +36,7 @@
 
 				//Lighting effect
 				highp vec3 ambient = vec3(0.4, 0.4 ,0.4);
-				highp vec3 directionalLight = vec3(0.75, 0.6, 0.5);
+				highp vec3 directionalLight = vec3(0.55, 0.5, 0.5);
 				highp vec3 directionalVector = vec3(0.85, 0.8, 0.75);
 
 				highp vec4 transformedNormal = normalM * vec4(normal, 1.0);
@@ -53,7 +54,11 @@
 			void main(void){
 				mediump vec4 texelColor = texture2D(uSampler, vec2(texture.s, texture.t));
 				gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+				//gl_FragColor = vec4(vec3(0.8,0.8,0.8) * vLighting, 1.0);
 			}
+		</script>
+		<script type="text/plain" id="my_object">
+
 		</script>
 	</head>
 	
@@ -70,4 +75,5 @@
 			</footer>
 		</div>
 	</body>
+	<script src="js/main.js"></script>
 </html>
