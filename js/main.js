@@ -69,6 +69,9 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
 	modelMatrix = Matrix.I(4);
@@ -95,7 +98,7 @@ function renderScene() {
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
 
 		mvPushMatrix();
-			mvTranslate([0.0, -8.5, -18.5]);
+			mvTranslate([0.0, -8.0, -24.0]);
 			mvRotate(squareRotation, [0, 1, 0]);
 			updateUniformMatrices();
 			gl.drawElements(gl.TRIANGLES, unpacked.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
@@ -213,7 +216,7 @@ function initBuffers(){
 	cubeVAO = ext.createVertexArrayOES();
 	ext.bindVertexArrayOES(cubeVAO);
 
-		var mesh = loadOBJ(meshData);
+		loadMeshModel(meshData);
 		//console.log(unpacked.vertexPositions.length);
 
 		//POSITION BUFFER
@@ -283,7 +286,7 @@ function mvTranslate(v){
 	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
-function loadOBJ(data){
+function loadMeshModel(data){
 	var vertexPositions = [];
 	var vertexNormals = [];
 	var vertexTextures = [];
