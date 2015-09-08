@@ -21,7 +21,7 @@ var normalMatrixLocation;
 var shaderProgram;
 var textureHandler;
 var meshVAO;
-var meshData;
+//var meshData;
 
 //FOR ROTATION TRANSFORMATION
 var squareRotation = 0.0;
@@ -51,7 +51,7 @@ function initApplication() {
 			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/nanosuit.obj",
 			success: function(data){
 				//console.log(data);
-				meshData = data;
+				loadMeshModel(data);
 			},
 			dataType: 'text'
         });
@@ -217,7 +217,7 @@ function initBuffers(){
 	meshVAO = ext.createVertexArrayOES();
 	ext.bindVertexArrayOES(meshVAO);
 
-		loadMeshModel(meshData);
+		//loadMeshModel(meshData);
 		//console.log(unpacked.vertexPositions.length);
 
 		//POSITION BUFFER
