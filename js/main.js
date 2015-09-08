@@ -21,7 +21,6 @@ var normalMatrixLocation;
 var shaderProgram;
 var textureHandler;
 var meshVAO;
-//var meshData;
 
 //FOR ROTATION TRANSFORMATION
 var squareRotation = 0.0;
@@ -38,7 +37,6 @@ unpacked.vertexIndices = [];
 unpacked.index = 0;
 
 
-
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
 		
@@ -50,7 +48,7 @@ function initApplication() {
 			async: false,
 			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/nanosuit.obj",
 			success: function(data){
-				//console.log(data);
+				//LOAD THE OBJ FILE AND PARSE THE DATA
 				loadMeshModel(data);
 			},
 			dataType: 'text'
@@ -216,10 +214,7 @@ function initBuffers(){
 	//VERTEX ARRAY OBJECT
 	meshVAO = ext.createVertexArrayOES();
 	ext.bindVertexArrayOES(meshVAO);
-
-		//loadMeshModel(meshData);
-		//console.log(unpacked.vertexPositions.length);
-
+	
 		//POSITION BUFFER
 		var positionVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, positionVBO);
