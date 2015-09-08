@@ -20,7 +20,8 @@ var normalMatrixLocation;
 //GL OBJECT HANDLERS
 var shaderProgram;
 var textureHandler;
-var cubeVAO;
+var meshVAO;
+var meshData;
 
 //FOR ROTATION TRANSFORMATION
 var squareRotation = 0.0;
@@ -36,7 +37,7 @@ unpacked.hashIndices = [];
 unpacked.vertexIndices = [];
 unpacked.index = 0;
 
-var meshData;
+
 
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
@@ -92,7 +93,7 @@ function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
-	ext.bindVertexArrayOES(cubeVAO);
+	ext.bindVertexArrayOES(meshVAO);
 		//gl.useProgram(shaderProgram);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
@@ -213,8 +214,8 @@ function handleTexture(handler){
 function initBuffers(){
 	
 	//VERTEX ARRAY OBJECT
-	cubeVAO = ext.createVertexArrayOES();
-	ext.bindVertexArrayOES(cubeVAO);
+	meshVAO = ext.createVertexArrayOES();
+	ext.bindVertexArrayOES(meshVAO);
 
 		loadMeshModel(meshData);
 		//console.log(unpacked.vertexPositions.length);
