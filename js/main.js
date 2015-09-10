@@ -63,7 +63,7 @@ function initApplication() {
 		return;
 	}
 
-	gl.clearColor(0.0, 0.0, 0.0, 0.85);
+	gl.clearColor(1.0, 1.0, 1.0, 1.0);
 	gl.clearDepth(1.0);
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
