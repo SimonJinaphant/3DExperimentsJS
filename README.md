@@ -1,2 +1,2 @@
 # 3DExperimentsJS
-Experimenting with WebGL
+A 3D model viewer made with WebGL
