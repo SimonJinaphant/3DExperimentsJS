@@ -21,6 +21,7 @@ var normalMatrixLocation;
 var shaderProgram;
 var textureHandler;
 var meshVAO;
+var skyboxHandler;
 
 //FOR ROTATION TRANSFORMATION
 var squareRotation = 0.0;
@@ -230,7 +231,7 @@ function initBuffers(){
 		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//TEXTURE BUFFER
-		var textureVBO= gl.createBuffer();
+		var textureVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureVBO);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexTextures), gl.STATIC_DRAW);
 		gl.enableVertexAttribArray(textureLocation);
@@ -341,3 +342,36 @@ function loadMeshModel(data){
 	}
 }
 
+function loadSkybox(){
+	skyboxHandler = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxHandler);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+	var faces = [["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
+	];
+
+	for(var i = 0; i < faces.length; i++){
+		var face = faces[i][1];
+		var image = new Image();
+		image.crossOrigin = "anonymous";
+		image.onload = function(skyboxHandler, face, image){
+			return function(){
+				gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxHandler);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+				gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			}
+		} (skyboxHandler, face, image);
+		image.src = faces[i][0];
+	}
+
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+
+}
