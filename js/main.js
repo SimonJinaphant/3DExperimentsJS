@@ -47,7 +47,7 @@ function initApplication() {
 
 		$.ajax({
 			async: false,
-			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/nanosuit.obj",
+			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/cube",
 			success: function(data){
 				//LOAD THE OBJ FILE AND PARSE THE DATA
 				loadMeshModel(data);
@@ -98,8 +98,8 @@ function renderScene() {
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
 
 		mvPushMatrix();
-			mvTranslate([0.0, -8.0, -24.0]);
-			mvRotate(squareRotation, [0, 1, 0]);
+			mvTranslate([0.0, 0.0, -8.0]);
+			mvRotate(squareRotation, [1, 1, 0]);
 			updateUniformMatrices();
 			gl.drawElements(gl.TRIANGLES, unpacked.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
