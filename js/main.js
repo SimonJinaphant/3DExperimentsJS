@@ -8,10 +8,6 @@ var viewMatrix;
 var modelMatrix;
 var normalMatrix;
 
-//UNIFORM LOCATIONS
-var modelLocation;
-var normalMatrixLocation;
-
 //GL OBJECT HANDLERS
 var shaderProgram;
 var skyboxHandler;
@@ -23,12 +19,12 @@ var mvMatrixStack = [];
 
 //FOR OBJ MESH
 var unpackedData = {};
-unpackedData.vertexPositions = [];
-unpackedData.vertexNormals = [];
-unpackedData.vertexTextures = [];
-unpackedData.hashIndices = [];
-unpackedData.vertexIndices = [];
-unpackedData.index = 0;
+	unpackedData.vertexPositions = [];
+	unpackedData.vertexNormals = [];
+	unpackedData.vertexTextures = [];
+	unpackedData.hashIndices = [];
+	unpackedData.vertexIndices = [];
+	unpackedData.index = 0;
 
 var EntityModel = function () {
 	this.meshVAO = null;
@@ -106,9 +102,9 @@ function renderScene() {
 		gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
 
 		mvPushMatrix();
-			mvTranslate([0.0, 0.0, -8.0]);
+			mvTranslate([0.0, 0.0, -6.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
-			updateUniformMatrices();
+			updateUniformMatrices(cube);
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 
@@ -150,8 +146,8 @@ function initShaders(entity){
 		gl.uniformMatrix4fv(viewLocation, false, new Float32Array(viewMatrix.flatten()));
 
 		//DETERMINE THE LOCATION, BUT DON'T UPDATE/SEND DATA TO THEM YET
-		modelLocation = gl.getUniformLocation(shaderProgram, "model");
-		normalMatrixLocation = gl.getUniformLocation(shaderProgram, "normalM");
+		entity.modelLocation = gl.getUniformLocation(shaderProgram, "model");
+		entity.normalMatrixLocation = gl.getUniformLocation(shaderProgram, "normalM");
 }
 
 function loadShader(shaderID) {
@@ -254,11 +250,11 @@ function initBuffers(entity, objFileData){
 	ext.bindVertexArrayOES(null);
 }
 
-function updateUniformMatrices(){
+function updateUniformMatrices(entity){
 	//THESE TWO UNIFORM MATRICES MUST BE UPDATED PERIODICALLY
-	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
+	gl.uniformMatrix4fv(entity.modelLocation, false, new Float32Array(modelMatrix.flatten()));
 	normalMatrix = modelMatrix.inverse().transpose();
-	gl.uniformMatrix4fv(normalMatrixLocation, false, new Float32Array(normalMatrix.flatten()));
+	gl.uniformMatrix4fv(entity.normalMatrixLocation, false, new Float32Array(normalMatrix.flatten()));
 }
 
 function multi(m){
