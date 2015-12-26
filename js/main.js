@@ -9,9 +9,9 @@ var modelMatrix;
 var normalMatrix;
 
 //VERTEX ATTRIBUTE LOCATIONS
-var positionLocation;
-var textureLocation;
-var normalLocation;
+//var positionLocation;
+//var textureLocation;
+//var normalLocation;
 
 //UNIFORM LOCATIONS
 var modelLocation;
@@ -20,7 +20,7 @@ var normalMatrixLocation;
 //GL OBJECT HANDLERS
 var shaderProgram;
 var textureHandler;
-var meshVAO;
+//var meshVAO;
 var skyboxHandler;
 
 //FOR ROTATION TRANSFORMATION
@@ -29,14 +29,22 @@ var lastSquareUpdateTime = 0;
 var mvMatrixStack = [];
 
 //FOR OBJ MESH
-var unpacked = {};
-unpacked.vertexPositions = [];
-unpacked.vertexNormals = [];
-unpacked.vertexTextures = [];
-unpacked.hashIndices = [];
-unpacked.vertexIndices = [];
-unpacked.index = 0;
+var unpackedData = {};
+unpackedData.vertexPositions = [];
+unpackedData.vertexNormals = [];
+unpackedData.vertexTextures = [];
+unpackedData.hashIndices = [];
+unpackedData.vertexIndices = [];
+unpackedData.index = 0;
 
+var Entity = function () {
+	this.meshVAO = null;
+	this.positionLocation = null;
+	this.textureLocation = null;
+	this.normalLocation = null;
+};
+
+var cube = new Entity();
 
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
@@ -50,7 +58,7 @@ function initApplication() {
 			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/cube",
 			success: function(data){
 				//LOAD THE OBJ FILE AND PARSE THE DATA
-				loadMeshModel(data);
+				loadMeshModel(data, unpackedData);
 			},
 			dataType: 'text'
         });
@@ -77,8 +85,8 @@ function initApplication() {
 	modelMatrix = Matrix.I(4);
 	normalMatrix = modelMatrix;
 
-	initShaders();
-	initBuffers();
+	initShaders(cube);
+	initBuffers(cube, unpackedData);
 	initTextures();
 
 	gl.enable(gl.CULL_FACE);
@@ -92,7 +100,7 @@ function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
-	ext.bindVertexArrayOES(meshVAO);
+	ext.bindVertexArrayOES(cube.meshVAO);
 		//gl.useProgram(shaderProgram);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
@@ -101,7 +109,7 @@ function renderScene() {
 			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
 			updateUniformMatrices();
-			gl.drawElements(gl.TRIANGLES, unpacked.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl.TRIANGLES, unpackedData.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 
 	ext.bindVertexArrayOES(null);
@@ -114,7 +122,7 @@ function renderScene() {
 	lastSquareUpdateTime = currentTime;
 }
 
-function initShaders(){
+function initShaders(entity){
 	var vertexShader = loadShader("shader-vs");
 	var fragmentShader = loadShader("shader-fs");
 
@@ -128,9 +136,9 @@ function initShaders(){
 	}
 
 	//DETERMINE THE ATTRIBUTE LOCATIONS FOR THE VERTEX 
-	positionLocation = gl.getAttribLocation(shaderProgram, "position");
-	textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
-	normalLocation = gl.getAttribLocation(shaderProgram, "normal");
+	entity.positionLocation = gl.getAttribLocation(shaderProgram, "position");
+	entity.textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
+	entity.normalLocation = gl.getAttribLocation(shaderProgram, "normal");
 	
 	//DETERMINE THE UNIFORM VARIABLE LOCATIONS
 	gl.useProgram(shaderProgram);
@@ -210,37 +218,37 @@ function handleTexture(handler){
 
 }
 
-function initBuffers(){
+function initBuffers(entity, objFileData){
 	
 	//VERTEX ARRAY OBJECT
-	meshVAO = ext.createVertexArrayOES();
-	ext.bindVertexArrayOES(meshVAO);
+	entity.meshVAO = ext.createVertexArrayOES();
+	ext.bindVertexArrayOES(entity.meshVAO);
 	
 		//POSITION BUFFER
 		var positionVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, positionVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexPositions), gl.STATIC_DRAW);
-		gl.enableVertexAttribArray(positionLocation);
-		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objFileData.vertexPositions), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(entity.positionLocation);
+		gl.vertexAttribPointer(entity.positionLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//NORMAL BUFFER
 		var normalVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, normalVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexNormals), gl.STATIC_DRAW);
-		gl.enableVertexAttribArray(normalLocation);
-		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objFileData.vertexNormals), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(entity.normalLocation);
+		gl.vertexAttribPointer(entity.normalLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//TEXTURE BUFFER
 		var textureVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexTextures), gl.STATIC_DRAW);
-		gl.enableVertexAttribArray(textureLocation);
-		gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objFileData.vertexTextures), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(entity.textureLocation);
+		gl.vertexAttribPointer(entity.textureLocation, 2, gl.FLOAT, false, 0, 0);
 
 		//INDICES BUFFER
 		var indicesEBO = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesEBO);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(unpacked.vertexIndices), gl.STATIC_DRAW);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objFileData.vertexIndices), gl.STATIC_DRAW);
 
 
 	ext.bindVertexArrayOES(null);
@@ -283,7 +291,7 @@ function mvTranslate(v){
 	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
-function loadMeshModel(data){
+function loadMeshModel(data, unpacked){
 	var vertexPositions = [];
 	var vertexNormals = [];
 	var vertexTextures = [];
