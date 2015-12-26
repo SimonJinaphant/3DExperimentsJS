@@ -8,19 +8,12 @@ var viewMatrix;
 var modelMatrix;
 var normalMatrix;
 
-//VERTEX ATTRIBUTE LOCATIONS
-//var positionLocation;
-//var textureLocation;
-//var normalLocation;
-
 //UNIFORM LOCATIONS
 var modelLocation;
 var normalMatrixLocation;
 
 //GL OBJECT HANDLERS
 var shaderProgram;
-var textureHandler;
-//var meshVAO;
 var skyboxHandler;
 
 //FOR ROTATION TRANSFORMATION
@@ -37,14 +30,21 @@ unpackedData.hashIndices = [];
 unpackedData.vertexIndices = [];
 unpackedData.index = 0;
 
-var Entity = function () {
+var EntityModel = function () {
 	this.meshVAO = null;
+	this.textureHandler = null;
+
 	this.positionLocation = null;
 	this.textureLocation = null;
 	this.normalLocation = null;
+	
+	this.indicesCount = null;
+
+	this.modelLocation = null;
+	this.normalMatrixLocation = null;
 };
 
-var cube = new Entity();
+var cube = new EntityModel();
 
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
@@ -87,7 +87,7 @@ function initApplication() {
 
 	initShaders(cube);
 	initBuffers(cube, unpackedData);
-	initTextures();
+	initTextures(cube);
 
 	gl.enable(gl.CULL_FACE);
 	gl.cullFace(gl.BACK);
@@ -103,13 +103,13 @@ function renderScene() {
 	ext.bindVertexArrayOES(cube.meshVAO);
 		//gl.useProgram(shaderProgram);
 		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
+		gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
 
 		mvPushMatrix();
 			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
 			updateUniformMatrices();
-			gl.drawElements(gl.TRIANGLES, unpackedData.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 
 	ext.bindVertexArrayOES(null);
@@ -145,7 +145,7 @@ function initShaders(entity){
 
 		gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
-		//THE VIEW MATRIX CAN BE SET ONCE SINCE THE CAMERA ISN'T MOVING
+		//THE VIEW MATRIX CAN BE SET ONCE AND LEFT ALONE SINCE THE CAMERA ISN'T MOVING
 		var viewLocation = gl.getUniformLocation(shaderProgram, "view");
 		gl.uniformMatrix4fv(viewLocation, false, new Float32Array(viewMatrix.flatten()));
 
@@ -193,15 +193,15 @@ function loadShader(shaderID) {
 	return shader;
 }
 
-function initTextures(){
-	textureHandler = gl.createTexture();
-	textureHandler.crossOrigin = "anonymous";
-	textureHandler.image = new Image();
-	textureHandler.image.crossOrigin = "anonymous";
-	textureHandler.image.onload = function(){
-		handleTexture(textureHandler);
+function initTextures(entity){
+	entity.textureHandler = gl.createTexture();
+	entity.textureHandler.crossOrigin = "anonymous";
+	entity.textureHandler.image = new Image();
+	entity.textureHandler.image.crossOrigin = "anonymous";
+	entity.textureHandler.image.onload = function(){
+		handleTexture(entity.textureHandler);
 	};
-	textureHandler.image.src = "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png";
+	entity.textureHandler.image.src = "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png";
 }
 
 function handleTexture(handler){
@@ -249,7 +249,7 @@ function initBuffers(entity, objFileData){
 		var indicesEBO = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesEBO);
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objFileData.vertexIndices), gl.STATIC_DRAW);
-
+		entity.indicesCount = objFileData.vertexIndices.length;
 
 	ext.bindVertexArrayOES(null);
 }
