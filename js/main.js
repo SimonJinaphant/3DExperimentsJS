@@ -89,6 +89,10 @@ function initApplication() {
 	gl.cullFace(gl.BACK);
 
 	//Our main loop
+
+	mvScale([1.2, 1.5, 1]);
+	mvTranslate([0.0, 0.0, -8.0]);
+
 	setInterval(renderScene, 15);
 }
 
@@ -102,15 +106,12 @@ function renderScene() {
 		gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
 
 		mvPushMatrix();
-			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
-			mvScale([1.2, 1.5, 1]);
 			updateUniformMatrices(cube);
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 
 	ext.bindVertexArrayOES(null);
-	
 
 	var currentTime = Date.now();
 	if(lastSquareUpdateTime){
@@ -288,7 +289,7 @@ function mvTranslate(v){
 }
 
 function mvScale(v){
-	multi(Matrix.Diagonal([v[0], v[1], v[2], 1]));
+	multi(Matrix.Diagonal([v[0], v[1], v[2], 1]).ensure4x4());
 }
 
 function loadSkybox(){
