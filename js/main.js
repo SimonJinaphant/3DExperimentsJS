@@ -104,6 +104,7 @@ function renderScene() {
 		mvPushMatrix();
 			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
+			mvScale([1.2, 1.5, 1]);
 			updateUniformMatrices(cube);
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
@@ -284,6 +285,10 @@ function mvRotate(angle, v){
 
 function mvTranslate(v){
 	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
+}
+
+function mvScale(v){
+	multi(Matrix.Diagonal([v[0], v[1], v[2], 1]));
 }
 
 function loadSkybox(){
