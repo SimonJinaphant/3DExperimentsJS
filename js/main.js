@@ -286,10 +286,6 @@ function mvTranslate(v){
 	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
-function mvScale(v){
-	multi(Matrix.Scale($V([v[0], v[1], v[2]))).ensure4x4());
-}
-
 function loadSkybox(){
 	skyboxHandler = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxHandler);
