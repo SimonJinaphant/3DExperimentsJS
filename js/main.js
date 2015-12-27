@@ -51,7 +51,7 @@ function initApplication() {
 
 		$.ajax({
 			async: false,
-			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/cube",
+			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/cube.obj",
 			success: function(data){
 				//LOAD THE OBJ FILE AND PARSE THE DATA
 				loadMeshModel(data, unpackedData);
@@ -102,7 +102,7 @@ function renderScene() {
 		gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
 
 		mvPushMatrix();
-			mvTranslate([0.0, 0.0, -6.0]);
+			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
 			updateUniformMatrices(cube);
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
@@ -191,7 +191,6 @@ function loadShader(shaderID) {
 
 function initTextures(entity){
 	entity.textureHandler = gl.createTexture();
-	entity.textureHandler.crossOrigin = "anonymous";
 	entity.textureHandler.image = new Image();
 	entity.textureHandler.image.crossOrigin = "anonymous";
 	entity.textureHandler.image.onload = function(){
@@ -287,63 +286,8 @@ function mvTranslate(v){
 	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
-function loadMeshModel(data, unpacked){
-	var vertexPositions = [];
-	var vertexNormals = [];
-	var vertexTextures = [];
-
-	var lines = data.split('\n');
-
-	var VERTEX_MATCH = /^v\s/;
-	var NORMAL_MATCH = /^vn\s/;
-	var TEXTURE_MATCH = /^vt\s/;
-	var FACE_MATCH = /^f\s/;
-	var WHITESPACE_MATCH = /\s+/;
-
-	for(var i = 0; i < lines.length; i++){
-		var line = lines[i].trim();
-		var elements = line.split(WHITESPACE_MATCH);
-		elements.shift(); //Deque the v, vn, or vt substring
-
-		if(VERTEX_MATCH.test(line)){
-			vertexPositions.push.apply(vertexPositions, elements);
-
-		} else if (NORMAL_MATCH.test(line)){
-			vertexNormals.push.apply(vertexNormals, elements);
-
-		} else if (TEXTURE_MATCH.test(line)){
-			vertexTextures.push.apply(vertexTextures, elements);
-
-		} else if (FACE_MATCH.test(line)){
-			//Time to link the data together
-
-			for(var j = 0, elementLength = elements.length; j < elementLength; j++){
-
-				if(elements[j] in unpacked.hashIndices){
-					unpacked.vertexIndices.push(unpacked.hashIndices[elements[j]]);
-				} else {
-					var vertex = elements[j].split('/');
-					// vertex[0] = vertex positions in obj, -1 to get 0 based index
-					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 0]);
-					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 1]);
-					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 2]);
-
-					if(vertexTextures.length){
-						unpacked.vertexTextures.push(+vertexTextures[(vertex[1] - 1) * 2 + 0]);
-						unpacked.vertexTextures.push(+vertexTextures[(vertex[1] - 1) * 2 + 1]);
-					}
-
-					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 0]);
-					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 1]);
-					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 2]);
-
-					unpacked.hashIndices[elements[j]] = unpacked.index;
-					unpacked.vertexIndices.push(unpacked.index);
-					unpacked.index += 1;
-				}
-			}
-		}
-	}
+function mvScale(v){
+	multi(Matrix.Scale($V([v[0], v[1], v[2]))).ensure4x4());
 }
 
 function loadSkybox(){
