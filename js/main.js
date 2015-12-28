@@ -10,7 +10,6 @@ var normalMatrix;
 
 //GL OBJECT HANDLERS
 var shaderProgram;
-var skyboxHandler;
 
 //FOR ROTATION TRANSFORMATION
 var squareRotation = 0.0;
@@ -85,10 +84,7 @@ function initApplication() {
 	initBuffers(cube, unpackedData);
 	initTextures(cube);
 
-	loadSkybox();
-
 	//Our main loop
-
 	setInterval(renderScene, 15);
 }
 
@@ -96,16 +92,22 @@ function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
+	
 	ext.bindVertexArrayOES(cube.meshVAO);
 		//gl.useProgram(shaderProgram);
-		
+		mvPushMatrix();
+			gl.disable(gl.CULL_FACE);
+			mvTranslate([0.0, 0.0, -4.0]);
+			mvScale([5, 5, 5]);
+			updateUniformMatrices(cube);
+			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
+		mvPopMatrix();
 
 		mvPushMatrix();
 			gl.enable(gl.CULL_FACE);
 			gl.cullFace(gl.BACK);
-
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
 
 			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
@@ -115,16 +117,6 @@ function renderScene() {
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 		
-		mvPushMatrix();
-			gl.disable(gl.CULL_FACE);
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxHandler);
-			mvTranslate([0.0, 0.0, -5.0]);
-			mvScale([5, 5, 5]);
-		
-			updateUniformMatrices(cube);
-			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
-		mvPopMatrix();
-
 	ext.bindVertexArrayOES(null);
 
 	var currentTime = Date.now();
@@ -304,38 +296,4 @@ function mvTranslate(v){
 
 function mvScale(v){
 	multi(Matrix.Diagonal([v[0], v[1], v[2], 1]).ensure4x4());
-}
-
-function loadSkybox(){
-	skyboxHandler = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxHandler);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
-	var faces = [["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_ft.png", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_bk.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_up.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_dn.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_lt.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_rt.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
-	];
-
-	for(var i = 0; i < faces.length; i++){
-		var face = faces[i][1];
-		var image = new Image();
-		image.crossOrigin = "anonymous";
-		image.onload = function(skyboxHandler, face, image){
-			return function(){
-				gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxHandler);
-				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-				gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-			}
-		} (skyboxHandler, face, image);
-		image.src = faces[i][0];
-	}
-
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-
 }
