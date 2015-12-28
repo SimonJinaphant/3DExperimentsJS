@@ -85,13 +85,9 @@ function initApplication() {
 	initBuffers(cube, unpackedData);
 	initTextures(cube);
 
-	gl.enable(gl.CULL_FACE);
-	gl.cullFace(gl.BACK);
+	loadSkybox();
 
 	//Our main loop
-
-	mvScale([1.2, 1.5, 1]);
-	mvTranslate([0.0, 0.0, -8.0]);
 
 	setInterval(renderScene, 15);
 }
@@ -102,11 +98,29 @@ function renderScene() {
 	
 	ext.bindVertexArrayOES(cube.meshVAO);
 		//gl.useProgram(shaderProgram);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
+		
 
 		mvPushMatrix();
+			gl.enable(gl.CULL_FACE);
+			gl.cullFace(gl.BACK);
+
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
+
+			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
+			mvScale([1.2, 2.0, 1]);
+		
+			updateUniformMatrices(cube);
+			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
+		mvPopMatrix();
+		
+		mvPushMatrix();
+			gl.disable(gl.CULL_FACE);
+			gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxHandler);
+			mvTranslate([0.0, 0.0, -5.0]);
+			mvScale([5, 5, 5]);
+		
 			updateUniformMatrices(cube);
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
