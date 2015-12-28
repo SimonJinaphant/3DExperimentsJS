@@ -314,12 +314,12 @@ function loadSkybox(){
 	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-	var faces = [["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
-				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
+	var faces = [["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_ft.png", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_bk.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_up.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_dn.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_lt.png", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+				 ["https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/skybox/peaks_rt.png", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
 	];
 
 	for(var i = 0; i < faces.length; i++){
