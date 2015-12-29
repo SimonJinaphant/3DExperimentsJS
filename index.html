@@ -10,7 +10,7 @@
 		<style type="text/css">
 			#container{
 				margin: 0px auto;
-				width: 480px;
+				width: 680px;
 			}
 			footer p{
 				text-align: center;
@@ -73,22 +73,6 @@
 						<input id="scaleY" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" />
 						<p>Scale z: </p>
 						<input id="scaleZ" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" />
-					</section>
-					<section id="translationControl">
-						<p>Translate x: </p>
-						<input type="range" min="0" max="50" value="0" step="5" onchange="updateTranslation(this.value)" />
-						<p>Translate y: </p>
-						<input type="range" min="0" max="50" value="0" step="5" onchange="updateTranslation(this.value)" />
-						<p>Translate z: </p>
-						<input type="range" min="0" max="50" value="0" step="5" onchange="updateTranslation(this.value)" />
-					</section>
-					<section id="rotationControl">
-						<p>Rotation x: </p>
-						<input id="rotationX" type="range" min="0" max="10" value="5" step="1" onchange="updateRotation()" />
-						<p>Rotation y: </p>
-						<input id="rotationY" type="range" min="0" max="10" value="5" step="1" onchange="updateRotation()" />
-						<p>Rotation z: </p>
-						<input id="rotationZ" type="range" min="0" max="10" value="5" step="1" onchange="updateRotation()" />
 					</section>
 					<section>
 						<select name="modelControl" onchange="updateModel(this.value)">

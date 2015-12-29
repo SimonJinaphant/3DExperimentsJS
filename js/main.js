@@ -20,8 +20,8 @@ var mvMatrixStack = [];
 var unpackedData = {};
 
 var scaleValues = [1, 1, 1];
-var rotationValues = [1, 1, 0];
-var translationValues = [0.0, 0.0, -8.0];
+var rotationValues = [0, 0, 0];
+var translationValues = [0, 0, 0];
 
 var EntityModel = function () {
 	this.meshVAO = null;
@@ -37,7 +37,7 @@ var EntityModel = function () {
 	this.normalMatrixLocation = null;
 };
 
-var cube = new EntityModel();
+var model = new EntityModel();
 
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
@@ -59,8 +59,8 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
-	canvas.width = window.innerWidth/2;
-	canvas.height = window.innerHeight/2;
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
@@ -81,17 +81,17 @@ function renderScene() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, cube.textureHandler);
+	gl.bindTexture(gl.TEXTURE_2D, model.textureHandler);
 	
-	ext.bindVertexArrayOES(cube.meshVAO);
+	ext.bindVertexArrayOES(model.meshVAO);
 		//gl.useProgram(shaderProgram);
 
 		mvPushMatrix();
 			mvTranslate(translationValues);
 			mvRotate(squareRotation, rotationValues);
 			mvScale(scaleValues);
-			updateUniformMatrices(cube);
-			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
+			updateUniformMatrices(model);
+			gl.drawElements(gl.TRIANGLES, model.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
 		
 	ext.bindVertexArrayOES(null);
@@ -283,14 +283,6 @@ function updateScale(){
 	console.log(scaleValues);
 }
 
-function updateRotation(){
-	rotationValues[0] = (document.getElementById("rotationX").value)/10;
-	rotationValues[1] = (document.getElementById("rotationY").value)/10;
-	rotationValues[2] = (document.getElementById("rotationZ").value)/10;
-
-	console.log(rotationValues);
-}
-
 function updateModel(modelname){
 	unpackedData = {};
 		unpackedData.vertexPositions = [];
@@ -302,15 +294,32 @@ function updateModel(modelname){
 
 	$.ajax({
 			async: false,
+			dataType: 'text',
 			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/"+modelname+".obj",
 			success: function(data){
-				//LOAD THE OBJ FILE AND PARSE THE DATA
 				loadMeshModel(data, unpackedData);
-			},
-			dataType: 'text'
+			}
         });
 
-	initShaders(cube);
-	initBuffers(cube, unpackedData);
-	initTextures(cube);
+	switch(modelname){
+		case "cube":
+			translationValues = [0, 0, -8.0];
+			rotationValues = [1, 1, 0];
+			break;
+
+		case "stall":
+			translationValues = [0, -3.0, -16.0];
+			rotationValues = [0, 1, 0];
+			break;
+
+		case "nanosuit":
+			translationValues = [0.0, -8.0, -24.0];
+			rotationValues = [0, 1, 0];
+			break;
+
+	}
+
+	initShaders(model);
+	initBuffers(model, unpackedData);
+	initTextures(model);
 }
