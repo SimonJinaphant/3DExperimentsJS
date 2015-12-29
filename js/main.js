@@ -72,8 +72,8 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
+	canvas.width = window.innerWidth/2;
+	canvas.height = window.innerHeight/2;
 
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
@@ -83,7 +83,13 @@ function initApplication() {
 	initShaders(cube);
 	initBuffers(cube, unpackedData);
 	initTextures(cube);
-
+	
+	gl.enable(gl.CULL_FACE);
+	gl.cullFace(gl.BACK);
+	
+	mvScale([1.2, 1.8, 1]);
+	mvTranslate([0.0, 0.0, -8.0]);
+	
 	//Our main loop
 	setInterval(renderScene, 15);
 }
@@ -97,22 +103,9 @@ function renderScene() {
 	
 	ext.bindVertexArrayOES(cube.meshVAO);
 		//gl.useProgram(shaderProgram);
-		mvPushMatrix();
-			gl.disable(gl.CULL_FACE);
-			mvTranslate([0.0, 0.0, -4.0]);
-			mvScale([5, 5, 5]);
-			updateUniformMatrices(cube);
-			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
-		mvPopMatrix();
 
 		mvPushMatrix();
-			gl.enable(gl.CULL_FACE);
-			gl.cullFace(gl.BACK);
-
-			mvTranslate([0.0, 0.0, -8.0]);
 			mvRotate(squareRotation, [1, 1, 0]);
-			mvScale([1.2, 2.0, 1]);
-		
 			updateUniformMatrices(cube);
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
@@ -296,4 +289,30 @@ function mvTranslate(v){
 
 function mvScale(v){
 	multi(Matrix.Diagonal([v[0], v[1], v[2], 1]).ensure4x4());
+}
+
+function updateModel(modelname){
+	unpackedData = {};
+	unpackedData.vertexPositions = [];
+	unpackedData.vertexNormals = [];
+	unpackedData.vertexTextures = [];
+	unpackedData.hashIndices = [];
+	unpackedData.vertexIndices = [];
+	unpackedData.index = 0;
+
+	$.ajax({
+			async: false,
+			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/"+modelname+".obj",
+			success: function(data){
+				//LOAD THE OBJ FILE AND PARSE THE DATA
+				loadMeshModel(data, unpackedData);
+			},
+			dataType: 'text'
+        });
+
+	initShaders(cube);
+	initBuffers(cube, unpackedData);
+	initTextures(cube);
+
+
 }
