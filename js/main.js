@@ -18,12 +18,10 @@ var mvMatrixStack = [];
 
 //FOR OBJ MESH
 var unpackedData = {};
-	unpackedData.vertexPositions = [];
-	unpackedData.vertexNormals = [];
-	unpackedData.vertexTextures = [];
-	unpackedData.hashIndices = [];
-	unpackedData.vertexIndices = [];
-	unpackedData.index = 0;
+
+var scaleValues = [1, 1, 1];
+var rotationValues = [1, 1, 0];
+var translationValues = [0.0, 0.0, -8.0];
 
 var EntityModel = function () {
 	this.meshVAO = null;
@@ -47,17 +45,6 @@ function initApplication() {
 	try {
 		gl = canvas.getContext("webgl");
 		ext = gl.getExtension("OES_vertex_array_object");
-
-		$.ajax({
-			async: false,
-			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/cube.obj",
-			success: function(data){
-				//LOAD THE OBJ FILE AND PARSE THE DATA
-				loadMeshModel(data, unpackedData);
-			},
-			dataType: 'text'
-        });
-
 	}catch(e){
 		console.error(e);
 	}
@@ -80,16 +67,11 @@ function initApplication() {
 	modelMatrix = Matrix.I(4);
 	normalMatrix = modelMatrix;
 
-	initShaders(cube);
-	initBuffers(cube, unpackedData);
-	initTextures(cube);
+	updateModel("cube");
 	
 	gl.enable(gl.CULL_FACE);
 	gl.cullFace(gl.BACK);
-	
-	mvScale([1.2, 1.8, 1]);
-	mvTranslate([0.0, 0.0, -8.0]);
-	
+
 	//Our main loop
 	setInterval(renderScene, 15);
 }
@@ -105,7 +87,9 @@ function renderScene() {
 		//gl.useProgram(shaderProgram);
 
 		mvPushMatrix();
-			mvRotate(squareRotation, [1, 1, 0]);
+			mvTranslate(translationValues);
+			mvRotate(squareRotation, rotationValues);
+			mvScale(scaleValues);
 			updateUniformMatrices(cube);
 			gl.drawElements(gl.TRIANGLES, cube.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
@@ -291,14 +275,22 @@ function mvScale(v){
 	multi(Matrix.Diagonal([v[0], v[1], v[2], 1]).ensure4x4());
 }
 
+function updateScale(){
+	scaleValues[0] = 1 + (document.getElementById("scaleX").value-10)/10;
+	scaleValues[1] = 1 + (document.getElementById("scaleY").value-10)/10;
+	scaleValues[2] = 1 + (document.getElementById("scaleZ").value-10)/10;
+
+	console.log(scaleValues);
+}
+
 function updateModel(modelname){
 	unpackedData = {};
-	unpackedData.vertexPositions = [];
-	unpackedData.vertexNormals = [];
-	unpackedData.vertexTextures = [];
-	unpackedData.hashIndices = [];
-	unpackedData.vertexIndices = [];
-	unpackedData.index = 0;
+		unpackedData.vertexPositions = [];
+		unpackedData.vertexNormals = [];
+		unpackedData.vertexTextures = [];
+		unpackedData.hashIndices = [];
+		unpackedData.vertexIndices = [];
+		unpackedData.index = 0;
 
 	$.ajax({
 			async: false,
@@ -313,6 +305,4 @@ function updateModel(modelname){
 	initShaders(cube);
 	initBuffers(cube, unpackedData);
 	initTextures(cube);
-
-
 }
