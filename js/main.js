@@ -283,6 +283,14 @@ function updateScale(){
 	console.log(scaleValues);
 }
 
+function updateRotation(){
+	rotationValues[0] = (document.getElementById("rotationX").value)/10;
+	rotationValues[1] = (document.getElementById("rotationY").value)/10;
+	rotationValues[2] = (document.getElementById("rotationZ").value)/10;
+
+	console.log(rotationValues);
+}
+
 function updateModel(modelname){
 	unpackedData = {};
 		unpackedData.vertexPositions = [];

@@ -84,11 +84,11 @@
 					</section>
 					<section id="rotationControl">
 						<p>Rotation x: </p>
-						<input type="range" min="0" max="50" value="0" step="5" onchange="updateRotation(this.value)" />
+						<input id="rotationX" type="range" min="0" max="10" value="5" step="1" onchange="updateRotation()" />
 						<p>Rotation y: </p>
-						<input type="range" min="0" max="50" value="0" step="5" onchange="updateRotation(this.value)" />
+						<input id="rotationY" type="range" min="0" max="10" value="5" step="1" onchange="updateRotation()" />
 						<p>Rotation z: </p>
-						<input type="range" min="0" max="50" value="0" step="5" onchange="updateRotation(this.value)" />
+						<input id="rotationZ" type="range" min="0" max="10" value="5" step="1" onchange="updateRotation()" />
 					</section>
 					<section>
 						<select name="modelControl" onchange="updateModel(this.value)">
