@@ -54,7 +54,7 @@ function initApplication() {
 		return;
 	}
 
-	gl.clearColor(1.0, 1.0, 1.0, 1.0);
+	gl.clearColor(0.9, 0.9, 0.9, 1.0);
 	gl.clearDepth(1.0);
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
@@ -82,10 +82,9 @@ function renderScene() {
 	
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, model.textureHandler);
-	
+	gl.useProgram(shaderProgram);
 	ext.bindVertexArrayOES(model.meshVAO);
-		//gl.useProgram(shaderProgram);
-
+		
 		mvPushMatrix();
 			mvTranslate(translationValues);
 			mvRotate(squareRotation, rotationValues);

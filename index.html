@@ -10,13 +10,26 @@
 		<style type="text/css">
 			#container{
 				margin: 0px auto;
-				width: 680px;
+				width: auto;
 			}
 			footer p{
 				text-align: center;
 				font-family: "Open Sans";
 				font-size: 12px;
 			}
+			#controls{
+				position: absolute;
+				width:280px;
+				text-align: left;
+				font-family: "Open Sans";
+				font-size: 16px;
+				color:#333;
+				background: #f0f0f0;
+				border: 1px solid #eee;
+			}
+				#controls input{
+					width: 250px;
+				}
 		</style>
 		<script id="shader-vs" type="x-shader/x-vertex">
 			attribute vec3 position;
@@ -60,21 +73,19 @@
 	</head>
 	
 	<body onload="initApplication()">
+
 		<div id="container">
-			<canvas id="mainCanvas">
-				Your browser doesn't support the canvas element :(
-			</canvas>
-			<footer>
-				<form>
+				<form id="controls">
 					<section id="scaleControl">
-						<p>Scale x: </p>
-						<input id="scaleX" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" />
-						<p>Scale y: </p>
-						<input id="scaleY" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" />
-						<p>Scale z: </p>
-						<input id="scaleZ" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" />
+						Scale
+						</br>
+						X <input id="scaleX" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+						Y <input id="scaleY" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+						Z <input id="scaleZ" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
 					</section>
+				</br>
 					<section>
+						Model 
 						<select name="modelControl" onchange="updateModel(this.value)">
 						  <option value="cube">Cube</option>
 						  <option value="stall">Stall</option>
@@ -82,6 +93,10 @@
 						</select>
 					</section>
 				</form>
+			<canvas id="mainCanvas">
+				Your browser doesn't support the canvas element :(
+			</canvas>
+			<footer>
 				<p>
 					In development | <a href="http://simonjinaphant.github.io">Simon Jinaphant</a>
 				</p>
