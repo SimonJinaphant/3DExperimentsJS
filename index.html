@@ -42,10 +42,11 @@
 
 			varying vec2 texture;
 			varying vec3 vLighting;
-			
+
 			void main(void){
 				gl_Position = view * model * vec4(position, 1.0);
 				texture = textureCoord;
+
 
 				//Lighting effect
 				highp vec3 ambient = vec3(0.4, 0.4 ,0.4);
@@ -63,11 +64,16 @@
 			varying vec3 vLighting;
 
 			uniform sampler2D uSampler;
+			uniform bool uActiveTexture;
 
 			void main(void){
-				mediump vec4 texelColor = texture2D(uSampler, vec2(texture.s, texture.t));
-				gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
-				//gl_FragColor = vec4(vec3(0.8,0.8,0.8) * vLighting, 1.0);
+				if(uActiveTexture){
+					mediump vec4 texelColor = texture2D(uSampler, vec2(texture.s, texture.t));
+					gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+				}else{
+					gl_FragColor = vec4(vec3(0.8,0.8,0.8) * vLighting, 1.0);
+				}
+				
 			}
 		</script>
 	</head>
@@ -75,31 +81,34 @@
 	<body onload="initApplication()">
 
 		<div id="container">
-				<form id="controls">
-					<section id="scaleControl">
-						Scale
-						</br>
-						X <input id="scaleX" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
-						Y <input id="scaleY" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
-						Z <input id="scaleZ" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
-					</section>
-				</br>
-					<section>
-						Model 
-						<select name="modelControl" onchange="updateModel(this.value)">
-						  <option value="cube">Cube</option>
-						  <option value="stall">Stall</option>
-						  <option value="nanosuit">Nanosuit</option>
-						</select>
-					</section>
-				</form>
+			<form id="controls">
+				<section id="scaleControl">
+					Scale
+					</br>
+					X <input id="scaleX" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+					Y <input id="scaleY" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+					Z <input id="scaleZ" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+				</section>
+			</br>
+				<section>
+					Model 
+					<select name="modelControl" onchange="updateModel(this.value)">
+					  <option value="cube">Cube</option>
+					  <option value="stall">Stall</option>
+					  <option value="nanosuit">Nanosuit</option>
+					</select>
+				</section>
+				<section>
+					Texture <input type="checkbox" onchange="updateUniformTexture()"/>
+				</section>
+			</form>
+
 			<canvas id="mainCanvas">
 				Your browser doesn't support the canvas element :(
 			</canvas>
+			
 			<footer>
-				<p>
-					In development | <a href="http://simonjinaphant.github.io">Simon Jinaphant</a>
-				</p>
+				<p>WebGL experiments - Model Simulator | <a href="http://simonjinaphant.github.io">Simon Jinaphant</a></p>
 			</footer>
 		</div>
 	</body>

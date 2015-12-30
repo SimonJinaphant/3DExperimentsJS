@@ -23,6 +23,9 @@ var scaleValues = [1, 1, 1];
 var rotationValues = [0, 0, 0];
 var translationValues = [0, 0, 0];
 
+var activeTextureLocation = null;
+var useTexture = 1;
+
 var EntityModel = function () {
 	this.meshVAO = null;
 	this.textureHandler = null;
@@ -124,6 +127,9 @@ function initShaders(entity){
 	gl.useProgram(shaderProgram);
 
 		gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
+
+		activeTextureLocation = gl.getUniformLocation(shaderProgram, "uActiveTexture");
+		gl.uniform1i(activeTextureLocation, useTexture);
 
 		//THE VIEW MATRIX CAN BE SET ONCE AND LEFT ALONE SINCE THE CAMERA ISN'T MOVING
 		var viewLocation = gl.getUniformLocation(shaderProgram, "view");
@@ -278,8 +284,14 @@ function updateScale(){
 	scaleValues[0] = 1 + (document.getElementById("scaleX").value-10)/10;
 	scaleValues[1] = 1 + (document.getElementById("scaleY").value-10)/10;
 	scaleValues[2] = 1 + (document.getElementById("scaleZ").value-10)/10;
+	
+	console.log("Scale: "+scaleValues);
+}
 
-	console.log(scaleValues);
+function updateUniformTexture(){
+	useTexture = +(!useTexture);
+	console.log("uActiveTexture: "+useTexture);
+	gl.uniform1i(activeTextureLocation, useTexture);
 }
 
 function updateModel(modelname){
