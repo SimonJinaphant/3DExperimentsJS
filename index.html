@@ -12,17 +12,18 @@
 			attribute vec2 textureCoord;
 			attribute vec3 normal;
 
+			//Uniform variables for extra functionalities in shader
 			uniform mat4 view;
 			uniform mat4 model;
 			uniform mat4 normalM;
 
+			//Values to be passed on starting from Vertex shader
 			varying vec2 texture;
 			varying vec3 vLighting;
 
 			void main(void){
 				gl_Position = view * model * vec4(position, 1.0);
 				texture = textureCoord;
-
 
 				//Lighting effect
 				highp vec3 ambient = vec3(0.4, 0.4 ,0.4);
@@ -39,6 +40,7 @@
 			varying vec2 texture;
 			varying vec3 vLighting;
 
+			//Uniform values directly from the main program
 			uniform sampler2D uSampler;
 			uniform bool uActiveTexture;
 
@@ -55,8 +57,8 @@
 	</head>
 	
 	<body onload="initApplication()">
-
 		<div id="container">
+
 			<form id="controls">
 				<section id="scaleControl">
 					Scale
@@ -65,7 +67,9 @@
 					Y <input id="scaleY" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
 					Z <input id="scaleZ" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
 				</section>
-			</br>
+
+				</br>
+
 				<section>
 					Model 
 					<select name="modelControl" onchange="updateModel(this.value)">
@@ -74,6 +78,7 @@
 					  <option value="nanosuit">Nanosuit</option>
 					</select>
 				</section>
+
 				<section>
 					Texture <input type="checkbox" onchange="updateUniformTexture()"/>
 				</section>
