@@ -62,8 +62,8 @@ function initApplication() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
+	canvas.width = 980;
+	canvas.height = 760;
 
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
