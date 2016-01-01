@@ -19,10 +19,10 @@ var mvMatrixStack = [];
 //FOR OBJ MESH
 var unpackedData = {};
 
+//CONTROL PANEL VARIABLES
 var scaleValues = [1, 1, 1];
 var rotationValues = [0, 0, 0];
 var translationValues = [0, 0, 0];
-
 var activeTextureLocation = null;
 var useTexture = 1;
 
@@ -285,13 +285,10 @@ function updateScale(){
 	scaleValues[0] = 1 + (document.getElementById("scaleX").value-10)/10;
 	scaleValues[1] = 1 + (document.getElementById("scaleY").value-10)/10;
 	scaleValues[2] = 1 + (document.getElementById("scaleZ").value-10)/10;
-	
-	console.log("Scale: "+scaleValues);
 }
 
 function updateUniformTexture(){
-	useTexture = +(!useTexture);
-	console.log("uActiveTexture: "+useTexture);
+	useTexture = +(!useTexture);	//NOT the value and convert from bool to int
 	gl.uniform1i(activeTextureLocation, useTexture);
 }
 
