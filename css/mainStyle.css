@@ -29,3 +29,7 @@ footer p{
 		display: block;
 		margin-bottom: 20px;
 	}
+
+	#controls p{
+		display:inline-block;
+	}

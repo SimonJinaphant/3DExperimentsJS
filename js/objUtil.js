@@ -18,7 +18,6 @@ function loadMeshModel(data, unpacked){
 
 		if(VERTEX_MATCH.test(line)){
 			vertexPositions.push.apply(vertexPositions, elements);
-			unpacked.verticesCount++;
 		} else if (NORMAL_MATCH.test(line)){
 			vertexNormals.push.apply(vertexNormals, elements);
 
@@ -27,7 +26,8 @@ function loadMeshModel(data, unpacked){
 
 		} else if (FACE_MATCH.test(line)){
 			//Time to link the data together
-
+			unpacked.polygonFaceCount++;
+			
 			for(var j = 0, elementLength = elements.length; j < elementLength; j++){
 
 				if(elements[j] in unpacked.hashIndices){

@@ -303,7 +303,7 @@ function updateModel(modelname){
 		unpackedData.hashIndices = [];
 		unpackedData.vertexIndices = [];
 		unpackedData.index = 0;
-		unpackedData.verticesCount = 0;
+		unpackedData.polygonFaceCount = 0;
 
 	$.ajax({
 			async: false,
@@ -332,7 +332,7 @@ function updateModel(modelname){
 
 	}
 
-	document.getElementById("verticesCount").innerHTML = unpackedData.verticesCount;
+	document.getElementById("verticesCount").innerHTML = unpackedData.polygonFaceCount;
 
 	initShaders(model);
 	initBuffers(model, unpackedData);
