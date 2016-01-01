@@ -38,6 +38,7 @@ var EntityModel = function () {
 
 	this.modelLocation = null;
 	this.normalMatrixLocation = null;
+
 };
 
 var model = new EntityModel();
@@ -215,7 +216,7 @@ function initBuffers(entity, objFileData){
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objFileData.vertexPositions), gl.STATIC_DRAW);
 		gl.enableVertexAttribArray(entity.positionLocation);
 		gl.vertexAttribPointer(entity.positionLocation, 3, gl.FLOAT, false, 0, 0);
-
+		
 		//NORMAL BUFFER
 		var normalVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, normalVBO);
@@ -302,6 +303,7 @@ function updateModel(modelname){
 		unpackedData.hashIndices = [];
 		unpackedData.vertexIndices = [];
 		unpackedData.index = 0;
+		unpackedData.verticesCount = 0;
 
 	$.ajax({
 			async: false,
@@ -329,6 +331,8 @@ function updateModel(modelname){
 			break;
 
 	}
+
+	document.getElementById("verticesCount").innerHTML = unpackedData.verticesCount;
 
 	initShaders(model);
 	initBuffers(model, unpackedData);

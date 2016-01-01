@@ -18,7 +18,7 @@ function loadMeshModel(data, unpacked){
 
 		if(VERTEX_MATCH.test(line)){
 			vertexPositions.push.apply(vertexPositions, elements);
-
+			unpacked.verticesCount++;
 		} else if (NORMAL_MATCH.test(line)){
 			vertexNormals.push.apply(vertexNormals, elements);
 
