@@ -6,30 +6,21 @@
 		<script src="js/libs/sylvester.js" type="text/javascript"></script>
 	    <script src="js/libs/glUtils.js" type="text/javascript"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
-		<style type="text/css">
-			#container{
-				margin: 0px auto;
-				width: auto;
-			}
-			footer p{
-				text-align: center;
-				font-family: "Open Sans";
-				font-size: 12px;
-			}
-		</style>
+		<link rel="stylesheet" href="css/mainStyle.css" />
 		<script id="shader-vs" type="x-shader/x-vertex">
 			attribute vec3 position;
 			attribute vec2 textureCoord;
 			attribute vec3 normal;
 
+			//Uniform variables for extra functionalities in shader
 			uniform mat4 view;
 			uniform mat4 model;
 			uniform mat4 normalM;
 
+			//Values to be passed on starting from Vertex shader
 			varying vec2 texture;
 			varying vec3 vLighting;
-			
+
 			void main(void){
 				gl_Position = view * model * vec4(position, 1.0);
 				texture = textureCoord;
@@ -49,30 +40,60 @@
 			varying vec2 texture;
 			varying vec3 vLighting;
 
+			//Uniform values directly from the main program
 			uniform sampler2D uSampler;
+			uniform bool uActiveTexture;
 
 			void main(void){
-				mediump vec4 texelColor = texture2D(uSampler, vec2(texture.s, texture.t));
-				gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
-				//gl_FragColor = vec4(vec3(0.8,0.8,0.8) * vLighting, 1.0);
+				if(uActiveTexture){
+					mediump vec4 texelColor = texture2D(uSampler, vec2(texture.s, texture.t));
+					gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+				}else{
+					gl_FragColor = vec4(vec3(0.8,0.8,0.8) * vLighting, 1.0);
+				}
+				
 			}
-		</script>
-		<script type="text/plain" id="my_object">
-
 		</script>
 	</head>
 	
 	<body onload="initApplication()">
 		<div id="container">
+
+			<form id="controls">
+				<section id="scaleControl">
+					Scale
+					</br>
+					X <input id="scaleX" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+					Y <input id="scaleY" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+					Z <input id="scaleZ" type="range" min="1" max="20" value="10" step="1" onchange="updateScale()" /></br>
+				</section>
+
+				<section>
+					Texture <input type="checkbox" checked onchange="updateUniformTexture()"/>
+				</section>
+
+				<section>
+					Model 
+					<select name="modelControl" onchange="updateModel(this.value)">
+					  <option value="cube">Cube</option>
+					  <option value="stall">Stall</option>
+					  <option value="nanosuit">Nanosuit</option>
+					</select>
+				</section>
+				<section>
+					Triangles: <p id="verticesCount">Nan</p>
+				</section>
+			</form>
+
 			<canvas id="mainCanvas">
 				Your browser doesn't support the canvas element :(
 			</canvas>
+			
 			<footer>
-				<p>
-					In development | <a href="http://simonjinaphant.github.io">Simon Jinaphant</a>
-				</p>
+				<p>WebGL Model Simulator | <a href="http://simonjinaphant.github.io">Simon Jinaphant</a></p>
 			</footer>
 		</div>
 	</body>
+	<script src="js/objUtil.js"></script>
 	<script src="js/main.js"></script>
 </html>

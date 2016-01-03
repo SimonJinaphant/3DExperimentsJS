@@ -8,19 +8,8 @@ var viewMatrix;
 var modelMatrix;
 var normalMatrix;
 
-//VERTEX ATTRIBUTE LOCATIONS
-var positionLocation;
-var textureLocation;
-var normalLocation;
-
-//UNIFORM LOCATIONS
-var modelLocation;
-var normalMatrixLocation;
-
 //GL OBJECT HANDLERS
 var shaderProgram;
-var textureHandler;
-var meshVAO;
 
 //FOR ROTATION TRANSFORMATION
 var squareRotation = 0.0;
@@ -28,14 +17,31 @@ var lastSquareUpdateTime = 0;
 var mvMatrixStack = [];
 
 //FOR OBJ MESH
-var unpacked = {};
-unpacked.vertexPositions = [];
-unpacked.vertexNormals = [];
-unpacked.vertexTextures = [];
-unpacked.hashIndices = [];
-unpacked.vertexIndices = [];
-unpacked.index = 0;
+var unpackedData = {};
 
+//CONTROL PANEL VARIABLES
+var scaleValues = [1, 1, 1];
+var rotationValues = [0, 0, 0];
+var translationValues = [0, 0, 0];
+var activeTextureLocation = null;
+var useTexture = 1;
+
+var EntityModel = function () {
+	this.meshVAO = null;
+	this.textureHandler = null;
+
+	this.positionLocation = null;
+	this.textureLocation = null;
+	this.normalLocation = null;
+	
+	this.indicesCount = null;
+
+	this.modelLocation = null;
+	this.normalMatrixLocation = null;
+
+};
+
+var model = new EntityModel();
 
 function initApplication() {
 	canvas = document.getElementById("mainCanvas");
@@ -43,17 +49,6 @@ function initApplication() {
 	try {
 		gl = canvas.getContext("webgl");
 		ext = gl.getExtension("OES_vertex_array_object");
-
-		$.ajax({
-			async: false,
-			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/nanosuit.obj",
-			success: function(data){
-				//LOAD THE OBJ FILE AND PARSE THE DATA
-				loadMeshModel(data);
-			},
-			dataType: 'text'
-        });
-
 	}catch(e){
 		console.error(e);
 	}
@@ -63,23 +58,21 @@ function initApplication() {
 		return;
 	}
 
-	gl.clearColor(0.0, 0.0, 0.0, 0.85);
+	gl.clearColor(0.9, 0.9, 0.9, 1.0);
 	gl.clearDepth(1.0);
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
+	canvas.width = 980;
+	canvas.height = 760;
 
 	//SET UP THE VARIOUS COORDINATE-SPACE MATRICES
 	viewMatrix = makePerspective(45, canvas.width/canvas.height, 0.1, 100.0);
 	modelMatrix = Matrix.I(4);
 	normalMatrix = modelMatrix;
 
-	initShaders();
-	initBuffers();
-	initTextures();
-
+	updateModel("cube");
+	
 	gl.enable(gl.CULL_FACE);
 	gl.cullFace(gl.BACK);
 
@@ -91,20 +84,20 @@ function renderScene() {
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
-	ext.bindVertexArrayOES(meshVAO);
-		//gl.useProgram(shaderProgram);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureHandler);
-
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, model.textureHandler);
+	gl.useProgram(shaderProgram);
+	ext.bindVertexArrayOES(model.meshVAO);
+		
 		mvPushMatrix();
-			mvTranslate([0.0, -8.0, -24.0]);
-			mvRotate(squareRotation, [0, 1, 0]);
-			updateUniformMatrices();
-			gl.drawElements(gl.TRIANGLES, unpacked.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
+			mvTranslate(translationValues);
+			mvRotate(squareRotation, rotationValues);
+			mvScale(scaleValues);
+			updateUniformMatrices(model);
+			gl.drawElements(gl.TRIANGLES, model.indicesCount, gl.UNSIGNED_SHORT, 0);
 		mvPopMatrix();
-
+		
 	ext.bindVertexArrayOES(null);
-	
 
 	var currentTime = Date.now();
 	if(lastSquareUpdateTime){
@@ -113,7 +106,7 @@ function renderScene() {
 	lastSquareUpdateTime = currentTime;
 }
 
-function initShaders(){
+function initShaders(entity){
 	var vertexShader = loadShader("shader-vs");
 	var fragmentShader = loadShader("shader-fs");
 
@@ -127,22 +120,25 @@ function initShaders(){
 	}
 
 	//DETERMINE THE ATTRIBUTE LOCATIONS FOR THE VERTEX 
-	positionLocation = gl.getAttribLocation(shaderProgram, "position");
-	textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
-	normalLocation = gl.getAttribLocation(shaderProgram, "normal");
+	entity.positionLocation = gl.getAttribLocation(shaderProgram, "position");
+	entity.textureLocation = gl.getAttribLocation(shaderProgram, "textureCoord");
+	entity.normalLocation = gl.getAttribLocation(shaderProgram, "normal");
 	
 	//DETERMINE THE UNIFORM VARIABLE LOCATIONS
 	gl.useProgram(shaderProgram);
 
 		gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
-		//THE VIEW MATRIX CAN BE SET ONCE SINCE THE CAMERA ISN'T MOVING
+		activeTextureLocation = gl.getUniformLocation(shaderProgram, "uActiveTexture");
+		gl.uniform1i(activeTextureLocation, useTexture);
+
+		//THE VIEW MATRIX CAN BE SET ONCE AND LEFT ALONE SINCE THE CAMERA ISN'T MOVING
 		var viewLocation = gl.getUniformLocation(shaderProgram, "view");
 		gl.uniformMatrix4fv(viewLocation, false, new Float32Array(viewMatrix.flatten()));
 
 		//DETERMINE THE LOCATION, BUT DON'T UPDATE/SEND DATA TO THEM YET
-		modelLocation = gl.getUniformLocation(shaderProgram, "model");
-		normalMatrixLocation = gl.getUniformLocation(shaderProgram, "normalM");
+		entity.modelLocation = gl.getUniformLocation(shaderProgram, "model");
+		entity.normalMatrixLocation = gl.getUniformLocation(shaderProgram, "normalM");
 }
 
 function loadShader(shaderID) {
@@ -184,15 +180,14 @@ function loadShader(shaderID) {
 	return shader;
 }
 
-function initTextures(){
-	textureHandler = gl.createTexture();
-	textureHandler.crossOrigin = "anonymous";
-	textureHandler.image = new Image();
-	textureHandler.image.crossOrigin = "anonymous";
-	textureHandler.image.onload = function(){
-		handleTexture(textureHandler);
+function initTextures(entity){
+	entity.textureHandler = gl.createTexture();
+	entity.textureHandler.image = new Image();
+	entity.textureHandler.image.crossOrigin = "anonymous";
+	entity.textureHandler.image.onload = function(){
+		handleTexture(entity.textureHandler);
 	};
-	textureHandler.image.src = "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png";
+	entity.textureHandler.image.src = "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/img/stone.png";
 }
 
 function handleTexture(handler){
@@ -209,47 +204,47 @@ function handleTexture(handler){
 
 }
 
-function initBuffers(){
+function initBuffers(entity, objFileData){
 	
 	//VERTEX ARRAY OBJECT
-	meshVAO = ext.createVertexArrayOES();
-	ext.bindVertexArrayOES(meshVAO);
+	entity.meshVAO = ext.createVertexArrayOES();
+	ext.bindVertexArrayOES(entity.meshVAO);
 	
 		//POSITION BUFFER
 		var positionVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, positionVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexPositions), gl.STATIC_DRAW);
-		gl.enableVertexAttribArray(positionLocation);
-		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objFileData.vertexPositions), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(entity.positionLocation);
+		gl.vertexAttribPointer(entity.positionLocation, 3, gl.FLOAT, false, 0, 0);
+		
 		//NORMAL BUFFER
 		var normalVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, normalVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexNormals), gl.STATIC_DRAW);
-		gl.enableVertexAttribArray(normalLocation);
-		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objFileData.vertexNormals), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(entity.normalLocation);
+		gl.vertexAttribPointer(entity.normalLocation, 3, gl.FLOAT, false, 0, 0);
 
 		//TEXTURE BUFFER
-		var textureVBO= gl.createBuffer();
+		var textureVBO = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureVBO);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpacked.vertexTextures), gl.STATIC_DRAW);
-		gl.enableVertexAttribArray(textureLocation);
-		gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objFileData.vertexTextures), gl.STATIC_DRAW);
+		gl.enableVertexAttribArray(entity.textureLocation);
+		gl.vertexAttribPointer(entity.textureLocation, 2, gl.FLOAT, false, 0, 0);
 
 		//INDICES BUFFER
 		var indicesEBO = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesEBO);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(unpacked.vertexIndices), gl.STATIC_DRAW);
-
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objFileData.vertexIndices), gl.STATIC_DRAW);
+		entity.indicesCount = objFileData.vertexIndices.length;
 
 	ext.bindVertexArrayOES(null);
 }
 
-function updateUniformMatrices(){
+function updateUniformMatrices(entity){
 	//THESE TWO UNIFORM MATRICES MUST BE UPDATED PERIODICALLY
-	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(modelMatrix.flatten()));
+	gl.uniformMatrix4fv(entity.modelLocation, false, new Float32Array(modelMatrix.flatten()));
 	normalMatrix = modelMatrix.inverse().transpose();
-	gl.uniformMatrix4fv(normalMatrixLocation, false, new Float32Array(normalMatrix.flatten()));
+	gl.uniformMatrix4fv(entity.normalMatrixLocation, false, new Float32Array(normalMatrix.flatten()));
 }
 
 function multi(m){
@@ -282,62 +277,61 @@ function mvTranslate(v){
 	multi(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
-function loadMeshModel(data){
-	var vertexPositions = [];
-	var vertexNormals = [];
-	var vertexTextures = [];
-
-	var lines = data.split('\n');
-
-	var VERTEX_MATCH = /^v\s/;
-	var NORMAL_MATCH = /^vn\s/;
-	var TEXTURE_MATCH = /^vt\s/;
-	var FACE_MATCH = /^f\s/;
-	var WHITESPACE_MATCH = /\s+/;
-
-	for(var i = 0; i < lines.length; i++){
-		var line = lines[i].trim();
-		var elements = line.split(WHITESPACE_MATCH);
-		elements.shift(); //Deque the v, vn, or vt substring
-
-		if(VERTEX_MATCH.test(line)){
-			vertexPositions.push.apply(vertexPositions, elements);
-
-		} else if (NORMAL_MATCH.test(line)){
-			vertexNormals.push.apply(vertexNormals, elements);
-
-		} else if (TEXTURE_MATCH.test(line)){
-			vertexTextures.push.apply(vertexTextures, elements);
-
-		} else if (FACE_MATCH.test(line)){
-			//Time to link the data together
-
-			for(var j = 0, elementLength = elements.length; j < elementLength; j++){
-
-				if(elements[j] in unpacked.hashIndices){
-					unpacked.vertexIndices.push(unpacked.hashIndices[elements[j]]);
-				} else {
-					var vertex = elements[j].split('/');
-					// vertex[0] = vertex positions in obj, -1 to get 0 based index
-					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 0]);
-					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 1]);
-					unpacked.vertexPositions.push(+vertexPositions[(vertex[0] - 1) * 3 + 2]);
-
-					if(vertexTextures.length){
-						unpacked.vertexTextures.push(+vertexTextures[(vertex[1] - 1) * 2 + 0]);
-						unpacked.vertexTextures.push(+vertexTextures[(vertex[1] - 1) * 2 + 1]);
-					}
-
-					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 0]);
-					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 1]);
-					unpacked.vertexNormals.push(+vertexNormals[(vertex[2] - 1) * 3 + 2]);
-
-					unpacked.hashIndices[elements[j]] = unpacked.index;
-					unpacked.vertexIndices.push(unpacked.index);
-					unpacked.index += 1;
-				}
-			}
-		}
-	}
+function mvScale(v){
+	multi(Matrix.Diagonal([v[0], v[1], v[2], 1]).ensure4x4());
 }
 
+function updateScale(){
+	scaleValues[0] = 1 + (document.getElementById("scaleX").value-10)/10;
+	scaleValues[1] = 1 + (document.getElementById("scaleY").value-10)/10;
+	scaleValues[2] = 1 + (document.getElementById("scaleZ").value-10)/10;
+}
+
+function updateUniformTexture(){
+	useTexture = +(!useTexture);	//NOT the value and convert from bool to int
+	gl.uniform1i(activeTextureLocation, useTexture);
+}
+
+function updateModel(modelname){
+	unpackedData = {};
+		unpackedData.vertexPositions = [];
+		unpackedData.vertexNormals = [];
+		unpackedData.vertexTextures = [];
+		unpackedData.hashIndices = [];
+		unpackedData.vertexIndices = [];
+		unpackedData.index = 0;
+		unpackedData.polygonFaceCount = 0;
+
+	$.ajax({
+			async: false,
+			dataType: 'text',
+			url: "https://raw.githubusercontent.com/SimonJinaphant/3DExperimentsJS/master/obj/"+modelname+".obj",
+			success: function(data){
+				loadMeshModel(data, unpackedData);
+			}
+        });
+
+	switch(modelname){
+		case "cube":
+			translationValues = [0, 0, -8.0];
+			rotationValues = [1, 1, 0];
+			break;
+
+		case "stall":
+			translationValues = [0, -3.0, -16.0];
+			rotationValues = [0, 1, 0];
+			break;
+
+		case "nanosuit":
+			translationValues = [0.0, -8.0, -24.0];
+			rotationValues = [0, 1, 0];
+			break;
+
+	}
+
+	document.getElementById("verticesCount").innerHTML = unpackedData.polygonFaceCount;
+
+	initShaders(model);
+	initBuffers(model, unpackedData);
+	initTextures(model);
+}
